@@ -6,18 +6,6 @@ export default function NavBar({ callSetCodeEditorTheme }) {
 
   return (
     <nav className="sidebar close">
-      <header>
-        <div className="image-text">
-          <span>
-            <span>DDF</span>
-          </span>
-          <div className="text logo-text">
-            <span className="title">CodeEditor</span>
-            <span className="subtitle">Pair Programming</span>
-          </div>
-        </div>
-      </header>
-
       <div className="menu-bar">
         <div className="menu">
           <ul className="menu-links">
@@ -26,7 +14,11 @@ export default function NavBar({ callSetCodeEditorTheme }) {
                 <i className="material-icons icon">description</i>
               </a>
             </li>
-
+            <li className="nav-link">
+              <a href="#">
+                <i className="material-icons icon">file_open</i>
+              </a>
+            </li>
             <li className="nav-link">
               <a href="#">
                 <i className="material-icons icon">file_upload</i>
