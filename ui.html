@@ -64,7 +64,7 @@
       }
 
       .explorer.open {
-        display: flex;
+        display: block;
       }
 
       .sidebar {
@@ -103,7 +103,7 @@
 
       .tab-bar {
         display: flex;
-        background-color: #f1f1f1;
+        background-color: #000;
         padding: 10px;
       }
 
@@ -238,18 +238,22 @@
               </div>
             </div>
             <div class="col-9" id="editor">
-              <div class="row">
-                <div class="col-12" id="tab-bar">
-                  <div class="tab-bar" id="tab-bar"></div>
-                </div>
-                <div class="col-12" id="code-editor">
-                  <textarea rows="20" cols="100"></textarea>
+              <div class="row" style="height: 100%">
+                <div class="col-12 tab-bar" id="tab-bar"></div>
+                <div class="col-12" id="code-editor" style="height: 96%">
+                  <textarea
+                    rows="23"
+                    cols="116"
+                    style="height: 100%; background-color: burlywood"
+                  ></textarea>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-12" id="info-bar">info-bar</div>
+        <div class="col-12" id="info-bar" style="background-color: aqua">
+          info-bar
+        </div>
       </div>
     </div>
     <!-- <div class="conatainer">
