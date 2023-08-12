@@ -1,0 +1,38 @@
+nav.sidebar-menu-bar {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  justify-content: space-between;
+  top: 50px;
+  width: 50px;
+  height: 91vh;
+  align-items: center;
+  background: var(--sidebar-color);
+  transition: var(--tran-05);
+}
+nav.sidebar-menu-bar a {
+  padding-top: 10px;
+}
+nav.sidebar-menu-bar a,
+nav.sidebar-menu-bar div.mode a {
+  font-size: 20px;
+  border-radius: 6px;
+  color: var(--text-color);
+  transition: var(--tran-03);
+}
+
+nav.sidebar-menu-bar div.mode {
+  padding-top: 2px;
+  border-radius: 10%;
+  height: 40px;
+  background-color: var(--sidebar-color);
+  align-items: center;
+  cursor: pointer;
+}
+nav.sidebar-menu-bar div.mode a.dark_light:hover {
+  color: #18191a;
+}
+body.dark nav.sidebar-menu-bar div.mode a.dark_light:hover {
+  color: #fff;
+}
