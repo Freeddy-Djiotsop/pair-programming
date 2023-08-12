@@ -1,3 +1,6 @@
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import MonacoEditor from "@monaco-editor/react";
+
 export default function TaskBar() {
   return (
     <div className="task-bar">
