@@ -1,13 +1,10 @@
 import { useState } from "react";
 import "./App.css";
-import BottomBar from "./components/BottomBar";
 import CodeEditor from "./components/CodeEditor";
-import NavBar from "./components/NavBar";
-import SidePanel from "./components/SidePanel";
-import MenuBar from "./MenuBar";
-import TaskBar from "./components/TaskBar";
+import MenuBar from "./components/MenuBar";
+import SideMenuBar from "./components/SideMenuBar";
 
-function App() {
+export default function App() {
   const [codeEditorTheme, setCodeEditorTheme] = useState("vs-light");
   const callSetCodeEditorTheme = () => {
     if (codeEditorTheme === "vs-light") {
@@ -18,14 +15,11 @@ function App() {
   };
   return (
     <div className="App">
-      <MenuBar />
-      <NavBar callSetCodeEditorTheme={callSetCodeEditorTheme} />
-      <SidePanel />
-      <TaskBar />
+      <header>
+        <MenuBar />
+        <SideMenuBar callSetCodeEditorTheme={callSetCodeEditorTheme} />
+      </header>
       <CodeEditor codeEditorTheme={codeEditorTheme} />
-      <BottomBar />
     </div>
   );
 }
-
-export default App;
