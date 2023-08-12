@@ -1,93 +1,62 @@
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  --mainColor: #29335c;
-  --mainColorLight: #5767aa;
-  --secondaryColor: #db2b39;
-  --textColor: #eee;
-
-  --body-color: #e4e9f7;
-  --sidebar-color: #fff;
-  --primary-color: #e4e9f7;
-  --primary-color-light: #f6f5ff;
-  --toggle-color: #ddd;
-  --text-color: #707070;
-}
-
-header {
+.header-top-menu-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 50px;
+  width: 100%;
   padding: 0 2rem;
-  background-color: var(--mainColor);
-  color: var(--textColor);
+  background-color: var(--menu-bar-color);
+  color: var(--menu-bar-text-color);
+  font-weight: 600;
 }
 
-nav a {
+.header-top-menu-bar .logo-text {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.header-top-menu-bar .logo-text .top {
+  margin-top: 2px;
+  font-size: 18px;
+}
+
+.header-top-menu-bar .logo-text .bottom {
+  font-size: 16px;
+  margin-top: -2px;
+}
+
+.top-menu-bar a {
   margin: 0 1rem;
-  color: var(--textColor);
+  color: var(--menu-bar-text-color);
   text-decoration: none;
 }
 
-nav a:hover {
-  color: var(--secondaryColor);
+.top-menu-bar a:hover {
+  color: var(--menu-bar-color-hover);
 }
 
-header .nav-btn {
+.header-top-menu-bar .nav-btn {
   padding: 5px;
   cursor: pointer;
   background: transparent;
   border: none;
   outline: none;
-  color: var(--textColor);
+  color: var(--menu-bar-text-color);
   visibility: hidden;
   opacity: 0;
   font-size: 1.8rem;
 }
 
-header div,
-nav {
+.header-top-menu-bar div,
+.top-menu-bar {
   display: flex;
   align-items: center;
 }
 
-@media only screen and (max-width: 1024px) {
-  header .nav-btn {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  header nav {
-    position: fixed;
-    top: -100vh;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    background-color: var(--mainColor);
-    transition: 1s;
-  }
-
-  header .responsive_nav {
-    transform: translateY(100vh);
-  }
-
-  nav .nav-close-btn {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-  }
-
-  nav a {
-    font-size: 1.5rem;
-  }
+.header-top-menu-bar .sing a:first-child {
+  padding-right: 20px;
+}
+.logo-text,
+.sing {
+  cursor: pointer;
 }
