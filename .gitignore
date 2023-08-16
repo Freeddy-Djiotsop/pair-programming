@@ -7,6 +7,8 @@
 **/node_modules
 **/.pnp
 **/.pnp.js
+server-code/outputs
+server-code/sourceCode
 
 # testing
 **/coverage
