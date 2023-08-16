@@ -2,7 +2,7 @@ import "./styles/menuBar.css";
 
 export default function MenuBar() {
   return (
-    <div className="header-top-menu-bar">
+    <header className="header-top-menu-bar">
       <div className="logo-text">
         <p className="top">Pair-Programming</p>
         <p className="bottom">APP</p>
@@ -17,6 +17,6 @@ export default function MenuBar() {
         <a>Sing in</a>
         <a>Sing up</a>
       </div>
-    </div>
+    </header>
   );
 }

@@ -1,0 +1,40 @@
+.sidebar-menu-bar {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 100vh;
+  top: 50px;
+  width: 50px;
+  height: 91vh;
+  background: var(--body-color);
+  transition: var(--tran-05);
+}
+
+.sidebar-menu-bar a:hover {
+  color: red;
+}
+.sidebar-menu-bar a,
+.sidebar-menu-bar div.mode a {
+  font-size: 20px;
+  color: var(--text-color);
+  transition: var(--tran-03);
+}
+
+.sidebar-menu-bar div.mode {
+  height: 40px;
+  width: 60px;
+  background-color: var(--sidebar-color);
+  cursor: pointer;
+}
+div.mode a {
+  position: relative;
+  left: 10px;
+}
+.sidebar-menu-bar div.mode a.dark_light:hover {
+  color: #18191a;
+}
+body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
+  color: #fff;
+}
