@@ -78,26 +78,10 @@ export default function Home() {
         helfen. Viel Spaß beim Codieren!
       </p>
       <div className="home-buttons">
-        <a href="/login">Login</a>
-        <a href="/register">Jetzt Registrieren</a>
-        <a href="/gast/editor">Weiter Als Gast</a>
+        <a href="login">Login</a>
+        <a href="register">Jetzt Registrieren</a>
+        <a href="gast/editor">Weiter Als Gast</a>
       </div>
     </div>
   );
-}
-{
-  /* <div className="home-content">
-      <h1>Willkommen bei Pair Programming App(PPA)</h1>
-      <p>
-        Mit PPA kannst du reibungslos mit anderen Entwicklern zusammenarbeiten,
-        um Code in Echtzeit zu bearbeiten, zu teilen und zu besprechen. Egal, ob
-        du an einem Schulprojekt, einem Open-Source-Beitrag oder einem
-        Teamprojekt arbeitest, unsere Plattform bietet dir die Werkzeuge, die du
-        benötigst, um effizient und effektiv zusammenzuarbeiten.
-      </p>
-
-      <a className="home-login">LOGIN</a>
-      <a className="home-register">REGISTER</a>
-      <a className="home-gast">GAST</a>
-    </div> */
 }
