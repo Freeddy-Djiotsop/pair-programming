@@ -1,24 +1,46 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
+import { socket, apiUrl } from "./../socket";
 import "./styles/mainComponent.css";
 
 export default function MainComponent() {
-  const apiUrl = "http://localhost:3001/";
   const modeRef = useRef(null);
+  const terminalRef = useRef(null);
+  const [height, setHeight] = useState("70vh");
   const [theme, setTheme] = useState("vs-light");
+  const [fileName, setFileName] = useState("main.js");
+  const [outputs, setOutputs] = useState([]);
+  const editorRef = useRef(null);
   const files = [
     {
       name: "main.js",
       language: "javascript",
       abbr: "js",
-      value: "",
+      value: `let res=1;
+console.log("Hello World\\n");
+for(let i=1; i<=10; i++){
+  res *=i;
+  console.log("Fahkultaet von %d ist %d\\n", i, res);
+}`,
     },
     {
       name: "main.c",
       language: "c",
       abbr: "c",
-      value: "",
+      value: `#include <stdio.h>
+
+      int main()
+      {
+          int res=1;
+          printf("Hello World\\n");
+          for(int i=1; i<=100; i++){
+              res *=i;
+              printf("Fahkultaet von %d ist %d\\n", i, res);
+          }
+      
+          return 0;
+      }`,
     },
     {
       name: "main.cpp",
@@ -30,13 +52,15 @@ export default function MainComponent() {
       name: "main.py",
       language: "python",
       abbr: "py",
-      value: "",
+      value: `res=1
+print("Hello World\\n")
+for(let i=1; i<=10; i++):
+  res *=i
+  console.log("Fahkultaet von %d ist %d\\n", i, res)`,
     },
   ];
-
-  const editorRef = useRef(null);
-  const [fileName, setFileName] = useState("main.c");
   const file = files.find((el) => el.name === fileName);
+  const [editorValue, setEditorValue] = useState(file.value);
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -44,7 +68,17 @@ export default function MainComponent() {
 
   const handleEditorDidChange = () => {
     file.value = editorRef.current.getValue();
+    setEditorValue(file.value);
+    socket.emit("send_code", { code: file.value });
   };
+
+  useEffect(() => {
+    socket.on("receive_code", (data) => {
+      console.log(data.code);
+      setEditorValue(data.code);
+      file.value = data.code;
+    });
+  }, [socket]);
 
   const addDark = () => {
     document.querySelector("body").classList.toggle("dark");
@@ -57,13 +91,28 @@ export default function MainComponent() {
     }
   };
   const runCode = async () => {
+    // const terminalOutput = terminalRef.current.querySelector(".termin-output");
     axios
-      .post(`${apiUrl}run`, {
+      .post(new URL("run", apiUrl), {
         language: file.abbr,
-        code: file.value,
+        code: editorValue,
       })
-      .then((res) => alert(res.data.output))
-      .catch((err) => alert(err));
+      .then((res) => {
+        setOutputs(res.data.output.split("\n"));
+      })
+      .catch((error) => {
+        console.error(error.response.data.error.stderr);
+        setOutputs(error.response.data.error.stderr.split("\n"));
+      })
+      .finally((_) => {
+        terminalRef.current.style.opacity = "1";
+        setHeight("70vh");
+      });
+  };
+
+  const closeTerminal = () => {
+    terminalRef.current.style.opacity = "0";
+    setHeight("100vh");
   };
 
   return (
@@ -105,13 +154,27 @@ export default function MainComponent() {
       </div>
       <div className="code-editor">
         <Editor
-          height="90vh"
-          width="100vw"
+          height={height}
+          width="100%"
           theme={theme}
           defaultLanguage={file.language}
           onMount={handleEditorDidMount}
           onChange={handleEditorDidChange}
+          defaultValue={file.value}
+          value={editorValue}
         />
+      </div>
+      <div ref={terminalRef} className="terminal">
+        <div className="terminal-bar">
+          <a onClick={closeTerminal}>x</a>
+        </div>
+        <div className="termin-output">
+          {outputs.map((text, index) => (
+            <p key={index}>
+              {text.includes(".c:") ? text.split(".c:")[1] : text}
+            </p>
+          ))}
+        </div>
       </div>
     </>
   );

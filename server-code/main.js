@@ -1,15 +1,30 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 const { generateSourceCode } = require("./helper/generateSourceCode");
-const { cCompiler, cppCompiler, pyCompiler } = require("./compiler");
+const {
+  cCompiler,
+  cppCompiler,
+  pyCompiler,
+  nodejsCompiler,
+} = require("./compiler");
 
 const app = express();
 const port = 3001;
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    // methods: ["GET", "POST"],
+  },
+});
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.get("", (req, res) => {
+app.get("/check", (req, res) => {
   res.status(200).json({ message: "Hallo" });
 });
 app.post("/run", async (req, res) => {
@@ -31,10 +46,10 @@ app.post("/run", async (req, res) => {
       case "cpp":
         output = await cppCompiler(filepath);
         break;
-      case "python":
+      case "py":
         output = await pyCompiler(filepath);
         break;
-      case "javascript":
+      case "js":
         output = await nodejsCompiler(filepath);
         break;
       case "java":
@@ -46,13 +61,31 @@ app.post("/run", async (req, res) => {
     // const jobId = job["_id"];
     // addJobToQueue(jobId);
     // res.status(201).json({ jobId });
+    console.log(output);
     res.json({ filepath, output });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ err });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error });
   }
 });
 
-app.listen(port, () => {
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  // socket.on("join_room", (data) => {
+  //   socket.join(data);
+  // });
+
+  socket.on("send_code", (data) => {
+    console.log(data.code);
+    socket.broadcast.emit("receive_code", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`user disconnected: ${socket.id}`);
+  });
+});
+
+server.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
