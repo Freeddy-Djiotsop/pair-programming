@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
-import { socket, apiUrl } from "./../socket";
-import "./styles/mainComponent.css";
+import { socket, apiUrl } from "../socket";
+import "./styles/codeEditor.css";
 
-export default function MainComponent() {
+export default function CodeEditor() {
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
   const [height, setHeight] = useState("70vh");
   const [theme, setTheme] = useState("vs-light");
-  const [fileName, setFileName] = useState("main.js");
+  const [fileName, setFileName] = useState("main.c");
   const [outputs, setOutputs] = useState([]);
   const editorRef = useRef(null);
   const files = [
