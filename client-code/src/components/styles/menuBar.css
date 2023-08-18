@@ -32,7 +32,7 @@
 }
 
 .top-menu-bar a:hover {
-  color: var(--menu-bar-color-hover);
+  color: var(--text-color);
 }
 
 .header-top-menu-bar .nav-btn {
