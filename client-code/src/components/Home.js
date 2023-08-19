@@ -1,13 +1,11 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./styles/home.css";
 
 export default function Home() {
   return (
     <div className="home-container">
-      <h1>
-        Willkommen bei Pair Programming
-        <span>App(PPA)</span>
-      </h1>
+      <h1>Willkommen bei Pair Programming App(PPA)</h1>
       <p>
         Mit PPA kannst du reibungslos mit anderen Entwicklern zusammenarbeiten,
         um Code in Echtzeit zu bearbeiten, zu teilen und zu besprechen. Egal, ob
@@ -61,9 +59,9 @@ export default function Home() {
         <div className="feature-card">
           <h3>Programmiersprachen</h3>
           <p>
-            Lass deiner Kreativität freien Lauf und erschaffe Großartiges
-            {"-"} in der Programmiersprache, die dir am besten liegt. Egal, ob
-            du dich für Python, JavaScript, Java, C++ oder eine andere Sprache
+            Lass deiner Kreativität freien Lauf und erschaffe Großartiges - in
+            der Programmiersprache, die dir am besten liegt. Egal, ob du dich
+            für Python, JavaScript, Java, C++ oder eine andere Sprache
             entscheidest.
           </p>
         </div>
@@ -78,9 +76,9 @@ export default function Home() {
         helfen. Viel Spaß beim Codieren!
       </p>
       <div className="home-buttons">
-        <a href="login">Login</a>
-        <a href="register">Jetzt Registrieren</a>
-        <a href="gast/editor">Weiter Als Gast</a>
+        <Link to="login">Login</Link>
+        <Link to="register">Jetzt Registrieren</Link>
+        <Link to="gast">Weiter Als Gast</Link>
       </div>
     </div>
   );

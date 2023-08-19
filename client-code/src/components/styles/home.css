@@ -10,8 +10,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 1.9rem;
+  margin-bottom: 1.2rem;
 }
 .home-container p {
   font-size: 1.1rem;
