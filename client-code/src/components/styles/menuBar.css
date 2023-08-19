@@ -6,7 +6,6 @@
   width: 100%;
   padding: 0 2rem;
   background-color: var(--menu-bar-color);
-  color: var(--menu-bar-text-color);
   font-weight: 600;
 }
 
@@ -25,38 +24,13 @@
   margin-top: -2px;
 }
 
-.top-menu-bar a {
+.header-top-menu-bar a {
   margin: 0 1rem;
+  cursor: pointer;
   color: var(--menu-bar-text-color);
   text-decoration: none;
 }
 
 .top-menu-bar a:hover {
   color: var(--text-color);
-}
-
-.header-top-menu-bar .nav-btn {
-  padding: 5px;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--menu-bar-text-color);
-  visibility: hidden;
-  opacity: 0;
-  font-size: 1.8rem;
-}
-
-.header-top-menu-bar div,
-.top-menu-bar {
-  display: flex;
-  align-items: center;
-}
-
-.header-top-menu-bar .sing a:first-child {
-  padding-right: 20px;
-}
-.logo-text,
-.sing {
-  cursor: pointer;
 }

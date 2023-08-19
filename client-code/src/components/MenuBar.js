@@ -1,21 +1,22 @@
+import { Link } from "react-router-dom";
 import "./styles/menuBar.css";
 
 export default function MenuBar() {
   return (
     <header className="header-top-menu-bar">
-      <div className="logo-text">
+      <Link className="logo-text" to="">
         <p className="top">Pair-Programming</p>
         <p className="bottom">APP</p>
-      </div>
+      </Link>
       <nav className="top-menu-bar">
-        <a href="/#">Home</a>
+        <Link to="">Home</Link>
         <a href="/#">My work</a>
         <a href="/#">Blog</a>
         <a href="/#">About me</a>
       </nav>
       <div className="sing">
-        <a>Sing in</a>
-        <a>Sing up</a>
+        <Link to="login">Sing in</Link>
+        <Link to="register">Sing up</Link>
       </div>
     </header>
   );
