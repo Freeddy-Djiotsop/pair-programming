@@ -1,6 +1,9 @@
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const platform = require("os").platform();
+
+console.log(`Das Betriebssystem ist: ${platform}`);
 
 const outputPath = path.join(__dirname, "outputs");
 
@@ -31,10 +34,13 @@ const pyCompiler = (filepath) => {
 const cppCompiler = (filepath) => {
   const jobId = path.basename(filepath).split(".")[0];
   const outPath = path.join(outputPath, `${jobId}.out`);
+  const executeCode = platform.startsWith("win")
+    ? `${jobId}.out`
+    : `./${jobId}.out`;
 
   return new Promise((resolve, reject) => {
     exec(
-      `g++ -Wall ${filepath} -o ${outPath} && cd ${outputPath} && ${jobId}.out`,
+      `g++ -Wall ${filepath} -o ${outPath} && cd ${outputPath} && ${executeCode}`,
       (error, stdout, stderr) => {
         error && reject({ error, stderr });
         stderr && reject(stderr);
@@ -47,10 +53,13 @@ const cppCompiler = (filepath) => {
 const cCompiler = (filepath) => {
   const jobId = path.basename(filepath).split(".")[0];
   const outPath = path.join(outputPath, `${jobId}.out`);
+  const executeCode = platform.startsWith("win")
+    ? `${jobId}.out`
+    : `./${jobId}.out`;
 
   return new Promise((resolve, reject) => {
     exec(
-      `gcc -Wall ${filepath} -o ${outPath} && cd ${outputPath} && ${jobId}.out`,
+      `gcc -Wall ${filepath} -o ${outPath} && cd ${outputPath} && ${executeCode}`,
       (error, stdout, stderr) => {
         error && reject({ error, stderr });
         stderr && reject(stderr);
