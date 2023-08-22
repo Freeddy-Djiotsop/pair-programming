@@ -7,9 +7,11 @@ import "./styles/codeEditor.css";
 export default function CodeEditor() {
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
-  const [height, setHeight] = useState("70vh");
+  const heightTerminalClosed = "87vh";
+  const heightTerminalOpened = "70vh";
+  const [height, setHeight] = useState(heightTerminalClosed);
   const [theme, setTheme] = useState("vs-light");
-  const [fileName, setFileName] = useState("main.c");
+  const [fileName, setFileName] = useState("main.py");
   const [outputs, setOutputs] = useState([]);
   const editorRef = useRef(null);
   const files = [
@@ -30,33 +32,45 @@ for(let i=1; i<=10; i++){
       abbr: "c",
       value: `#include <stdio.h>
 
-      int main()
-      {
-          int res=1;
-          printf("Hello World\\n");
-          for(int i=1; i<=100; i++){
-              res *=i;
-              printf("Fahkultaet von %d ist %d\\n", i, res);
-          }
-      
-          return 0;
-      }`,
+int main()
+{
+  int res=1;
+  printf("Hello World\\n");
+  for(int i=1; i<=10; i++){
+      res *=i;
+      printf("Fahkultaet von %d ist %d\\n", i, res);
+  }
+
+  return 0;
+}`,
     },
     {
       name: "main.cpp",
       language: "cpp",
       abbr: "cpp",
-      value: "",
+      value: `#include <iostream>
+
+using namespace std;
+
+int main()
+{
+  int res = 1;
+  for(int i=1; i<=10; i++){
+    res *=i;
+    cout<<"Fahkultaet von " << i <<" ist "<< res <<endl;
+  }
+
+  return 0;
+}`,
     },
     {
       name: "main.py",
       language: "python",
       abbr: "py",
-      value: `res=1
-print("Hello World\\n")
-for(let i=1; i<=10; i++):
-  res *=i
-  console.log("Fahkultaet von %d ist %d\\n", i, res)`,
+      value: `res = 1
+for i in range(1, 10):
+    res *= i
+    print('Fahkultaet von', i , 'ist:', res)`,
     },
   ];
   const file = files.find((el) => el.name === fileName);
@@ -104,54 +118,61 @@ for(let i=1; i<=10; i++):
         console.error(error.response.data.error.stderr);
         setOutputs(error.response.data.error.stderr.split("\n"));
       })
-      .finally((_) => {
-        terminalRef.current.style.opacity = "1";
-        setHeight("70vh");
+      .finally(() => {
+        openTerminal();
       });
+  };
+
+  const openTerminal = () => {
+    terminalRef.current.style.opacity = "1";
+    setHeight(heightTerminalOpened);
   };
 
   const closeTerminal = () => {
     terminalRef.current.style.opacity = "0";
-    setHeight("100vh");
+    setHeight(heightTerminalClosed);
+  };
+  const vollscreenTerminal = () => {
+    terminalRef.current.style.opacity = "1";
+    terminalRef.current.style.height = heightTerminalClosed;
+    setHeight("0vh");
   };
 
   return (
-    <>
-      <div>
-        <nav className="sidebar-menu-bar">
-          <a href="/#">
-            <i className="material-icons icon">description</i>
+    <div className="editor-panel">
+      <nav className="sidebar-menu-bar">
+        <a href="/#">
+          <i className="material-icons icon">description</i>
+        </a>
+        <a href="/#">
+          <i className="material-icons icon">file_open</i>
+        </a>
+        <a href="/#">
+          <i className="material-icons icon">file_upload</i>
+        </a>
+        <a href="/#">
+          <i className="material-icons icon">download</i>
+        </a>
+        <a href="/#">
+          <i className="material-icons icon">note_add</i>
+        </a>
+        <a onClick={runCode}>
+          <i className="material-icons icon">play_arrow</i>
+        </a>
+        <a href="/#">
+          <i className="material-icons icon">create_new_folder</i>
+        </a>
+        <a href="/#">
+          <i className="material-icons icon">logout</i>
+        </a>
+        <div className="mode" onClick={addDark}>
+          <a className="dark_light">
+            <i ref={modeRef} className="material-icons icon">
+              dark_mode
+            </i>
           </a>
-          <a href="/#">
-            <i className="material-icons icon">file_open</i>
-          </a>
-          <a href="/#">
-            <i className="material-icons icon">file_upload</i>
-          </a>
-          <a href="/#">
-            <i className="material-icons icon">download</i>
-          </a>
-          <a href="/#">
-            <i className="material-icons icon">note_add</i>
-          </a>
-          <a onClick={runCode}>
-            <i className="material-icons icon">play_arrow</i>
-          </a>
-          <a href="/#">
-            <i className="material-icons icon">create_new_folder</i>
-          </a>
-          <a href="/#">
-            <i className="material-icons icon">logout</i>
-          </a>
-          <div className="mode" onClick={addDark}>
-            <a className="dark_light">
-              <i ref={modeRef} className="material-icons icon">
-                dark_mode
-              </i>
-            </a>
-          </div>
-        </nav>
-      </div>
+        </div>
+      </nav>
       <div className="code-editor">
         <Editor
           height={height}
@@ -164,10 +185,18 @@ for(let i=1; i<=10; i++):
           value={editorValue}
         />
       </div>
+      <div className="terminal-bar">
+        <a onClick={closeTerminal}>
+          <i className="material-icons icon">close</i>
+        </a>
+        <a onClick={openTerminal}>
+          <i className="material-icons icon">minimize</i>
+        </a>
+        <a onClick={vollscreenTerminal}>
+          <i className="material-icons icon">expand_less</i>
+        </a>
+      </div>
       <div ref={terminalRef} className="terminal">
-        <div className="terminal-bar">
-          <a onClick={closeTerminal}>x</a>
-        </div>
         <div className="termin-output">
           {outputs.map((text, index) => (
             <p key={index}>
@@ -176,6 +205,6 @@ for(let i=1; i<=10; i++):
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
