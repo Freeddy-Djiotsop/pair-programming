@@ -1,0 +1,25 @@
+.login-form {
+  position: relative;
+  display: flex;
+  max-height: 100vh;
+  justify-content: center;
+  top: 50px;
+}
+
+.login-remember {
+  display: flex;
+  justify-content: space-around;
+  margin: 50px 0 10px 0;
+}
+.login-remember label input {
+  margin-right: 5px;
+  accent-color: var(--menu-bar-color);
+}
+
+.login-remember a {
+  color: rgb(23, 23, 226);
+}
+
+.login-remember a:hover {
+  text-decoration: underline;
+}

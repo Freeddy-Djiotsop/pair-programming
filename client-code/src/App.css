@@ -31,7 +31,7 @@ body {
 }
 
 ::selection {
-  background-color: var(--primary-color);
+  background-color: var(--menu-bar-color);
   color: #fff;
 }
 
@@ -48,7 +48,27 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+a {
+  text-decoration: none;
+}
+
 .code-editor {
   position: relative;
   left: 50px;
+}
+
+div.scrollable-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  overflow: auto;
+}
+div.feature-card {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 1.5rem;
+  border-radius: 8px;
+  flex: 1 1 calc(33.33% - 1rem);
 }

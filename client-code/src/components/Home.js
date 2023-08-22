@@ -1,10 +1,9 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import "./styles/home.css";
 
 export default function Home() {
   return (
-    <div className="home-container">
+    <div className="description-container">
       <h1>Willkommen bei Pair Programming App(PPA)</h1>
       <p>
         Mit PPA kannst du reibungslos mit anderen Entwicklern zusammenarbeiten,

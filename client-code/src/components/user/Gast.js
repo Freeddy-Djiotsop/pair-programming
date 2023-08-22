@@ -1,32 +1,10 @@
-import React from "react";
-import "./styles/gast.css";
 import { Link } from "react-router-dom";
+import "./styles/gast.css";
 
 export default function Gast() {
   return (
-    // <div className="gast-content">
-    //   <h1>Willkommen bei [Name deiner Anwendung] - Deinem Ort für kollaboratives Codieren ohne Grenzen!</h1>
-    //   <p>
-    //     Lorem ipsum dolor sit amet consectetur adipisicing elit. At optio
-    //     consequatur, nihil, illo natus quibusdam esse nemo ipsa recusandae
-    //     laboriosam voluptate distinctio quidem est sunt neque sint perspiciatis
-    //     temporibus aperiam? Porro quibusdam pariatur totam maxime quod officiis
-    //     obcaecati? Minus, id? Asperiores et dignissimos ut obcaecati modi. In ex
-    //     illum harum. Suscipit culpa blanditiis deleniti tenetur harum
-    //     exercitationem quis tempore ab! Accusantium debitis ratione provident
-    //     possimus, fugit sapiente consectetur officiis sequi blanditiis neque
-    //     obcaecati commodi praesentium labore quos necessitatibus, rerum ut?
-    //     Dignissimos numquam odio earum aut sint distinctio recusandae ipsam
-    //     quisquam.
-    //   </p>
-
-    //   <a className="gast-editor">editor</a>
-    // </div>
-    <div className="gast-container">
-      <h1>
-        Willkommen bei Pair Programming
-        <span>App(PPA)</span>
-      </h1>
+    <div className="description-container">
+      <h1>Willkommen bei Pair Programming App (PPA)</h1>
       <p>
         Bist du bereit, in die Welt des Codierens einzutauchen? Bei uns musst du
         keine Registrierung vornehmen, um loszulegen. PPA bietet eine intuitive
