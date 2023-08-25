@@ -1,7 +1,10 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/login.css";
+import { apiUrl } from "../../socket";
+import { notierror, notisuccess } from "../../toast";
+import { useAuth } from "../Auth";
 
 export default function Login() {
   const {
@@ -10,19 +13,32 @@ export default function Login() {
     formState: { errors },
   } = useForm();
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useAuth();
+
+  const redirectPath = location.state?.path || "/editor";
+
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("/user/login", {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
+      const { email, password } = data;
+      const response = await axios.post(new URL("/user/login", apiUrl), {
+        email,
+        password,
       });
-      console.log("Registrierung erfolgreich:", response.data);
+      const { user } = response.data;
+      localStorage.setItem("user", JSON.stringify(response.data));
+      auth.login(user);
+      navigate(redirectPath, { replace: true });
+
+      notisuccess(`Hi, ${response.data.user.firstname}`);
+      console.log("Login erfolgreich:", response.data);
     } catch (error) {
-      console.error("Fehler bei der Registrierung:", error);
+      notierror(error.response.data.error.message);
+      console.error("Fehler bei der Login:", error);
     }
   };
+
   return (
     <div className="login-form">
       <div className="register-wrapper">
@@ -33,7 +49,9 @@ export default function Login() {
             {errors.email && <span>Email ist erforderlich</span>}
             <input
               type="email"
+              defaultValue={auth.user?.email}
               placeholder="...@example.de"
+              autoFocus
               {...register("email", { required: true })}
             />
             <i className="material-icons icon">mail</i>

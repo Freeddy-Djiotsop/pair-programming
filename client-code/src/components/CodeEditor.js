@@ -3,8 +3,10 @@ import Editor from "@monaco-editor/react";
 import axios from "axios";
 import { socket, apiUrl } from "../socket";
 import "./styles/codeEditor.css";
+import { useAuth } from "./Auth";
 
 export default function CodeEditor() {
+  const auth = useAuth();
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
   const heightTerminalClosed = "87vh";
@@ -162,9 +164,11 @@ for i in range(1, 10):
         <a href="/#">
           <i className="material-icons icon">create_new_folder</i>
         </a>
-        <a href="/#">
-          <i className="material-icons icon">logout</i>
-        </a>
+        {auth.isLogged ? (
+          <a onClick={auth.logout}>
+            <i className="material-icons icon">logout</i>
+          </a>
+        ) : null}
         <div className="mode" onClick={addDark}>
           <a className="dark_light">
             <i ref={modeRef} className="material-icons icon">

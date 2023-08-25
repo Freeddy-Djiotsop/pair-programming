@@ -1,8 +1,11 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import bcrypt from "bcryptjs";
 import "./styles/register.css";
+import { apiUrl } from "../../socket";
+import { useNavigate } from "react-router-dom";
+import { notierror, notisuccess } from "../../toast";
+import { useAuth } from "../Auth";
 
 export default function Register() {
   const {
@@ -11,32 +14,23 @@ export default function Register() {
     formState: { errors },
   } = useForm();
 
+  const navigate = useNavigate();
+  const auth = useAuth();
+
   const onSubmit = async (data) => {
     try {
-      bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-          console.log("Fehler beim Generieren des Salts:");
-          throw err;
-        }
-
-        bcrypt.hash(data.password, salt, async (err, hash) => {
-          if (err) {
-            console.error("Fehler beim Hashen des Passworts:");
-            throw err;
-          }
-
-          // Speichere das `hash` in der Datenbank zusammen mit dem Benutzer
-          console.log("Salted & Hashed Password:", hash);
-          const response = await axios.post("/user/register", {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            password: hash,
-          });
-          console.log("Registrierung erfolgreich:", response.data);
-        });
+      const response = await axios.post(new URL("/user/register", apiUrl), {
+        firstname: data.firstName,
+        lastname: data.lastName,
+        email: data.email,
+        password: data.password,
       });
+      auth.setUser({ email: response.data.email });
+      navigate("/login");
+      notisuccess("Registrierung erfolgreich:");
+      console.log("Registrierung erfolgreich:", response.data);
     } catch (error) {
+      notierror("Fehler bei der Registrierung:");
       console.error("Fehler bei der Registrierung:", error);
     }
   };
@@ -52,6 +46,7 @@ export default function Register() {
             <input
               type="text"
               placeholder="John"
+              autoFocus
               {...register("firstName", { required: true })}
             />
             <i className="material-icons icon">person</i>

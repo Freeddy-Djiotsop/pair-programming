@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import "./styles/menuBar.css";
+import { useAuth } from "./Auth";
 
 export default function MenuBar() {
+  const auth = useAuth();
+
   return (
     <header className="header-top-menu-bar">
       <Link className="logo-text" to="">
@@ -14,10 +17,12 @@ export default function MenuBar() {
         <a href="/#">Blog</a>
         <a href="/#">About me</a>
       </nav>
-      <div className="sing">
-        <Link to="login">Sing in</Link>
-        <Link to="register">Sing up</Link>
-      </div>
+      {!auth.isLogged ? (
+        <div className="sing">
+          <Link to="login">Sign in</Link>
+          <Link to="register">Sign up</Link>
+        </div>
+      ) : null}
     </header>
   );
 }
