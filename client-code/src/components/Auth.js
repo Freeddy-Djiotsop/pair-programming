@@ -3,26 +3,28 @@ import { useState, createContext, useContext } from "react";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [isLogged, setIsLogged] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem("token") !== null
+  );
   const [user, setUser] = useState(null);
 
   const login = () => {
-    setIsLogged(true);
-  };
-
-  const getLocalStorageUser = () => {
-    const tmp = JSON.parse(localStorage.getItem("user"))["user"];
-    setUser(tmp);
-    return user;
+    const tmp = localStorage.getItem("token") !== null;
+    setIsAuthenticated(tmp);
+    const uTmp = JSON.parse(localStorage.getItem("user"))["user"];
+    console.log(uTmp);
+    setUser(uTmp);
   };
 
   const logout = () => {
-    setIsLogged(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isLogged, user, login, logout, setUser }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -31,75 +33,3 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-/**
- * 
- * import axios from "axios";
-
-const API_URL = "/auth";
-
-const signup = (email, password) => {
-  return axios
-    .post(API_URL + "/signup", {
-      email,
-      password,
-    })
-    .then((response) => {
-      if (response.data.accessToken) {
-        localStorage.setItem("user", JSON.stringify(response.data));
-      }
-
-      return response.data;
-    });
-};
-
-const login = (email, password) => {
-  return axios
-    .post(API_URL + "/login", {
-      email,
-      password,
-    })
-    .then((response) => {
-      if (response.data.accessToken) {
-        localStorage.setItem("user", JSON.stringify(response.data));
-      }
-
-      return response.data;
-    });
-};
-
-const logout = () => {
-  localStorage.removeItem("user");
-};
-
-const getCurrentUser = () => {
-  return JSON.parse(localStorage.getItem("user"));
-};
-
-const authService = {
-  signup,
-  login,
-  logout,
-  getCurrentUser,
-};
-
-export default authService;
- */
-
-//LOgin vermeiden
-/**
- * 
- * import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
-
-const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) =>
-      isAuthenticated ? <Redirect to="/dashboard" /> : <Component {...props} />
-    }
-  />
-);
-
-export default PrivateRoute;
-
- */

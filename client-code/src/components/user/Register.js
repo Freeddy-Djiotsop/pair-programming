@@ -1,11 +1,10 @@
+import "./styles/register.css";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import axios from "axios";
-import "./styles/register.css";
-import { apiUrl } from "../../socket";
 import { useNavigate } from "react-router-dom";
 import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
+import axios from "../../api/axios";
 
 export default function Register() {
   const {
@@ -19,7 +18,7 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(new URL("/user/register", apiUrl), {
+      const response = await axios.post("user/register", {
         firstname: data.firstName,
         lastname: data.lastName,
         email: data.email,
@@ -30,7 +29,10 @@ export default function Register() {
       notisuccess("Registrierung erfolgreich:");
       console.log("Registrierung erfolgreich:", response.data);
     } catch (error) {
-      notierror("Fehler bei der Registrierung:");
+      if (!error?.response)
+        notierror("Fehler bei der Registrierung, Keine Response vom Server");
+      else if (error.response?.status === 409) notierror("Email schon belegt");
+      else notierror("Fehler bei der Registrierung,");
       console.error("Fehler bei der Registrierung:", error);
     }
   };

@@ -1,10 +1,9 @@
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./styles/login.css";
-import { apiUrl } from "../../socket";
 import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
+import axios from "../../api/axios";
 
 export default function Login() {
   const {
@@ -17,22 +16,21 @@ export default function Login() {
   const location = useLocation();
   const auth = useAuth();
 
-  const redirectPath = location.state?.path || "/editor";
+  const redirectPath = location.state?.path || "/home";
 
   const onSubmit = async (data) => {
     try {
       const { email, password } = data;
-      const response = await axios.post(new URL("/user/login", apiUrl), {
+      const response = await axios.post("user/login", {
         email,
         password,
       });
-      const { user } = response.data;
-      localStorage.setItem("user", JSON.stringify(response.data));
-      auth.login(user);
+      const { user, token } = response.data;
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+      auth.login();
       navigate(redirectPath, { replace: true });
-
-      notisuccess(`Hi, ${response.data.user.firstname}`);
-      console.log("Login erfolgreich:", response.data);
+      notisuccess(`Hi, ${user.firstname}`);
     } catch (error) {
       notierror(error.response.data.error.message);
       console.error("Fehler bei der Login:", error);
