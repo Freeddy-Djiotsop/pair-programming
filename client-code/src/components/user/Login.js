@@ -16,7 +16,7 @@ export default function Login() {
   const location = useLocation();
   const auth = useAuth();
 
-  const redirectPath = location.state?.path || "/home";
+  const redirectPath = location.state?.path || "/dashboard";
 
   const onSubmit = async (data) => {
     try {

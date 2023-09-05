@@ -2,7 +2,7 @@ const { User } = require("./mongodb");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const register = async (req, res) => {
+const register = (req, res) => {
   const { firstname, lastname, email, password } = req.body;
   console.log(req.body);
   try {
