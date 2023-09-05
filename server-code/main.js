@@ -8,6 +8,7 @@ const {
   cppCompiler,
   pyCompiler,
   nodejsCompiler,
+  deleteSourceCode,
 } = require("./compiler");
 const { User } = require("./helper/mongodb");
 const bcrypt = require("bcrypt");
@@ -84,8 +85,8 @@ app.post("/user/login", async (req, res) => {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
-        accessToken,
       },
+      token: accessToken,
     });
   } catch (error) {
     return res.status(500).json({ error: { message: "error" } });
@@ -121,25 +122,15 @@ app.post("/run", async (req, res) => {
         output = await cCompiler(filepath);
         break;
     }
-    // write into DB
-    // const job = await new Job({ language, filepath }).save();
-    // const jobId = job["_id"];
-    // addJobToQueue(jobId);
-    // res.status(201).json({ jobId });
-    console.log(output);
-    res.json({ filepath, output });
+
+    res.json({ output });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error });
   }
 });
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
-
-  // socket.on("join_room", (data) => {
-  //   socket.join(data);
-  // });
 
   socket.on("send_code", (data) => {
     console.log(data.code);

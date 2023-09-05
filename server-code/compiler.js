@@ -14,6 +14,7 @@ if (!fs.existsSync(outputPath)) {
 const nodejsCompiler = (filepath) => {
   return new Promise((resolve, reject) => {
     exec(`node ${filepath}`, (error, stdout, stderr) => {
+      deleteSourceCode(filepath);
       error && reject({ error, stderr });
       stderr && reject(stderr);
       resolve(stdout);
@@ -24,6 +25,7 @@ const nodejsCompiler = (filepath) => {
 const pyCompiler = (filepath) => {
   return new Promise((resolve, reject) => {
     exec(`python ${filepath}`, (error, stdout, stderr) => {
+      deleteSourceCode(filepath);
       error && reject({ error, stderr });
       stderr && reject(stderr);
       resolve(stdout);
@@ -42,6 +44,8 @@ const cppCompiler = (filepath) => {
     exec(
       `g++ -Wall ${filepath} -o ${outPath} && cd ${outputPath} && ${executeCode}`,
       (error, stdout, stderr) => {
+        deleteSourceCode(outPath);
+        deleteSourceCode(filepath);
         error && reject({ error, stderr });
         stderr && reject(stderr);
         resolve(stdout);
@@ -61,6 +65,8 @@ const cCompiler = (filepath) => {
     exec(
       `gcc -Wall ${filepath} -o ${outPath} && cd ${outputPath} && ${executeCode}`,
       (error, stdout, stderr) => {
+        deleteSourceCode(outPath);
+        deleteSourceCode(filepath);
         error && reject({ error, stderr });
         stderr && reject(stderr);
         resolve(stdout);
@@ -69,4 +75,18 @@ const cCompiler = (filepath) => {
   });
 };
 
-module.exports = { nodejsCompiler, cppCompiler, pyCompiler, cCompiler };
+const deleteSourceCode = (path) => {
+  try {
+    fs.rmdirSync(path, { recursive: true });
+  } catch (error) {
+    console.error(`Fehler beim Löschen des Verzeichnisses ${path}: ${error}`);
+  }
+};
+
+module.exports = {
+  nodejsCompiler,
+  cppCompiler,
+  pyCompiler,
+  cCompiler,
+  deleteSourceCode,
+};
