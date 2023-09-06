@@ -13,13 +13,14 @@ export default function MenuBar() {
       </Link>
       <nav className="top-menu-bar">
         <Link to="">Home</Link>
+        <a href="/#">About us</a>
         {auth.isAuthenticated ? (
           <>
-            <a href="/#">Dashboard</a>
+            <Link to="/dashboard">Dashboard</Link>
             <Link to="/editor">Editor</Link>
+            <a onClick={auth.logout}>Logout</a>
           </>
         ) : null}
-        <a href="/#">About us</a>
       </nav>
       {auth.isAuthenticated ? null : (
         <div className="sing">

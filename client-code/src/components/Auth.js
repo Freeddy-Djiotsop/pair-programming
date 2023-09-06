@@ -6,14 +6,13 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem("token") !== null
   );
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
   const login = () => {
-    const tmp = localStorage.getItem("token") !== null;
-    setIsAuthenticated(tmp);
-    const uTmp = JSON.parse(localStorage.getItem("user"))["user"];
-    console.log(uTmp);
-    setUser(uTmp);
+    const i = localStorage.getItem("token") !== null;
+    setIsAuthenticated(i);
+    const u = JSON.parse(localStorage.getItem("user"));
+    setUser(u);
   };
 
   const logout = () => {

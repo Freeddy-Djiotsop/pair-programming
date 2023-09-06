@@ -10,6 +10,7 @@ import Login from "./components/user/Login";
 import Register from "./components/user/Register";
 import { AuthProvider } from "./components/Auth";
 import { ProtectedRoutesGuard, UserGuard } from "./components/Guard";
+import Dashboard from "./components/Dashborad";
 
 export default function App() {
   return (
@@ -55,6 +56,14 @@ export default function App() {
             element={
               <UserGuard>
                 <CodeEditor />
+              </UserGuard>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <UserGuard>
+                <Dashboard />
               </UserGuard>
             }
           />

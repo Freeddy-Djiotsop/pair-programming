@@ -4,6 +4,7 @@ import "./styles/login.css";
 import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
 import axios from "../../api/axios";
+import { socket } from "../../api/socket";
 
 export default function Login() {
   const {
@@ -26,9 +27,13 @@ export default function Login() {
         password,
       });
       const { user, token } = response.data;
+
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
+
       auth.login();
+      socket.emit("set-username", user.email);
+
       navigate(redirectPath, { replace: true });
       notisuccess(`Hi, ${user.firstname}`);
     } catch (error) {
