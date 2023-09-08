@@ -1,20 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
-import axios from "axios";
-import { socket, apiUrl } from "../socket";
+import axios from "../api/axios";
+import { socket } from "../api/socket";
 import "./styles/codeEditor.css";
 import { useAuth } from "./Auth";
+import { notierror, notisuccess } from "../toast";
 
 export default function CodeEditor() {
   const auth = useAuth();
+  socket.emit("set_username", auth.user.email);
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
   const heightTerminalClosed = "87vh";
   const heightTerminalOpened = "70vh";
   const [height, setHeight] = useState(heightTerminalClosed);
   const [theme, setTheme] = useState("vs-light");
-  const [fileName, setFileName] = useState("main.py");
+  const [fileName, setFileName] = useState("main.c");
   const [outputs, setOutputs] = useState([]);
+  const [shareState, setShareState] = useState(false);
+  const [to, setTo] = useState("");
+  const shareRef = useRef(null);
   const editorRef = useRef(null);
   const files = [
     {
@@ -85,13 +90,52 @@ for i in range(1, 10):
   const handleEditorDidChange = () => {
     file.value = editorRef.current.getValue();
     setEditorValue(file.value);
-    socket.emit("send_code", { code: file.value });
+    if (shareState)
+      socket.emit("send_code", auth.user.email, to, { code: file.value });
   };
 
   useEffect(() => {
-    socket.on("receive_code", (data) => {
-      console.log(data.code);
+    socket.on("share_problem", (from) => {
+      setShareState(false);
+      notierror(
+        `Es gab ein Problem bei der Verbindung mit${from}\nLaden Sie die Page erneut und versuchen es noch mal`
+      );
+    });
+    socket.on("transfer_stop", () => {
+      setShareState(false);
+    });
+    socket.on("transfer_request", (from) => {
+      if (
+        window.confirm(
+          `${from} möchte eine Übertragung starten. Möchtest Sie akzeptieren?`
+        )
+      ) {
+        setTo(from);
+        setShareState(true);
+        socket.emit("confirm_transfer", from, auth.user.email);
+      } else {
+        socket.emit("deny_transfer", from, auth.user.email);
+      }
+    });
+
+    socket.on("transfer_confirmed", (from) => {
+      notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
+      setShareState(true);
+    });
+    socket.on("no_user", (from) => {
+      notierror(`${from} nicht gefunden oder ist offline no-user`);
+    });
+    socket.on("same_user", (from) => {
+      notierror(
+        `Übertragung nicht möglich, denn das ist Ihr username: ${from}`
+      );
+    });
+    socket.on("transfer_denied", (from) => {
+      notierror(`${from} hat die Übertragung abgehlt bestätigt`);
+    });
+    socket.on("receive_code", (from, data) => {
       setEditorValue(data.code);
+      setTo(from);
       file.value = data.code;
     });
   }, [socket]);
@@ -107,9 +151,8 @@ for i in range(1, 10):
     }
   };
   const runCode = async () => {
-    // const terminalOutput = terminalRef.current.querySelector(".termin-output");
     axios
-      .post(new URL("run", apiUrl), {
+      .post("run", {
         language: file.abbr,
         code: editorValue,
       })
@@ -117,7 +160,7 @@ for i in range(1, 10):
         setOutputs(res.data.output.split("\n"));
       })
       .catch((error) => {
-        console.error(error.response.data.error.stderr);
+        console.error(error.response.data.error);
         setOutputs(error.response.data.error.stderr.split("\n"));
       })
       .finally(() => {
@@ -138,6 +181,20 @@ for i in range(1, 10):
     terminalRef.current.style.opacity = "1";
     terminalRef.current.style.height = heightTerminalClosed;
     setHeight("0vh");
+  };
+
+  const handleShare = () => {
+    if (!shareState) {
+      const input = window.prompt("Bitte geben Sie der Benutzername(email):");
+      if (input === null) return;
+
+      if (window.confirm(`Wir versuchen Sie nun zu verbinden mit: ${input}`)) {
+        socket.emit("request_transfer", auth.user.email, input);
+      }
+    } else {
+      socket.emit("stop_transfer", to);
+      setShareState(false);
+    }
   };
 
   return (
@@ -161,10 +218,12 @@ for i in range(1, 10):
         <a onClick={runCode}>
           <i className="material-icons icon">play_arrow</i>
         </a>
-        <a href="/#">
-          <i className="material-icons icon">create_new_folder</i>
+        <a onClick={handleShare}>
+          <i ref={shareRef} className="material-icons icon">
+            {shareState ? "cancel_schedule_send" : "share"}
+          </i>
         </a>
-        {auth.isLogged ? (
+        {auth.isAuthenticated ? (
           <a onClick={auth.logout}>
             <i className="material-icons icon">logout</i>
           </a>

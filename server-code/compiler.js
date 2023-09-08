@@ -98,7 +98,6 @@ const runCode = async (req, res) => {
     return res.status(400).json({ success: false, error: "Empty code body!" });
   }
   try {
-    // will generate a .language file with content from the request
     await generateSourceCode(language, code);
     let output;
     switch (language) {
