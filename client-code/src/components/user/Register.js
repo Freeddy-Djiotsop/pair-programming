@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
 import axios from "../../api/axios";
+import { PasswordEntcrypt } from "./passwort";
 
 export default function Register() {
   const {
@@ -18,11 +19,12 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
+      const hash = PasswordEntcrypt(data.password);
       const response = await axios.post("user/register", {
         firstname: data.firstName,
         lastname: data.lastName,
         email: data.email,
-        password: data.password,
+        hash,
       });
       auth.setUser({ email: response.data.email });
       navigate("/login");

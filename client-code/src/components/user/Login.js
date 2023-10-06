@@ -4,6 +4,7 @@ import "./styles/login.css";
 import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
 import axios from "../../api/axios";
+import { PasswordDecrypt } from "./passwort";
 
 export default function Login() {
   const {
@@ -21,11 +22,13 @@ export default function Login() {
   const onSubmit = async (data) => {
     try {
       const { email, password } = data;
-      const response = await axios.post("user/login", {
-        email,
-        password,
-      });
+      const response = await axios.post("user/login", { email });
       const { user, token } = response.data;
+      const match = PasswordDecrypt(password, user.hash);
+
+      if (!match) {
+        throw new Error("Email or password is invalid");
+      }
 
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
@@ -35,7 +38,10 @@ export default function Login() {
       navigate(redirectPath, { replace: true });
       notisuccess(`Hi, ${user.firstname}`);
     } catch (error) {
-      notierror(error.response.data.error.message);
+      const message = error.response
+        ? error.response.data.error.message
+        : error.message;
+      notierror(message);
       console.error("Fehler bei der Login:", error);
     }
   };
