@@ -6,28 +6,53 @@ mongoose
   .then(() => console.log("DB ist Connect"))
   .catch((err) => console.error(err));
 
+// Schema für Benutzer
 const userSchema = new mongoose.Schema({
-  firstname: {
-    type: String,
-    required: true,
-  },
-  lastname: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  salt: {
-    type: String,
-    required: true,
-  },
+  firstname: { type: String, required: true },
+  lastname: { type: String, required: true },
+  email: { type: String, required: true },
+  hash: { type: String, required: true },
+  projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
 });
-const User = new mongoose.model("User", userSchema);
 
-module.exports = { User };
+// Schema für Projekte
+const projectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  createdAt: { type: Date, require: true },
+  lastModified: { type: Date, require: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", require: true },
+  folders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Folder" }],
+  files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+});
+
+// Schema für Ordner
+const folderSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  createdAt: { type: Date, require: true },
+  lastModified: { type: Date, require: true },
+  projectOrParentFolder: {
+    type: mongoose.Schema.Types.ObjectId,
+    refPath: "onModel",
+  },
+  onModel: { type: String, required: true, enum: ["Project", "Folder"] },
+  files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+});
+
+// Schema für Dateien
+const fileSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  content: { type: String, required: true },
+  path: { type: String },
+  createdAt: { type: Date, require: true },
+  lastModified: { type: Date, require: true },
+  projectOrFolder: { type: mongoose.Schema.Types.ObjectId, refPath: "onModel" },
+  onModel: { type: String, required: true, enum: ["Project", "Folder"] },
+});
+
+// Modelle aus den Schemas erstellen
+const User = mongoose.model("User", userSchema);
+const Project = mongoose.model("Project", projectSchema);
+const Folder = mongoose.model("Folder", folderSchema);
+const File = mongoose.model("File", fileSchema);
+
+module.exports = { User, Project, Folder, File };
