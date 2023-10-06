@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import "./styles/home.css";
+import { useAuth } from "./Auth";
 
 export default function Home() {
+  const auth = useAuth();
+
   return (
     <div className="description-container">
       <h1>Willkommen bei Pair Programming App(PPA)</h1>
@@ -74,11 +77,14 @@ export default function Home() {
         Bei Fragen oder Feedback steht unser Support-Team bereit, um dir zu
         helfen. Viel Spaß beim Codieren!
       </p>
-      <div className="home-buttons">
-        <Link to="login">Login</Link>
-        <Link to="register">Jetzt Registrieren</Link>
-        <Link to="gast">Weiter Als Gast</Link>
-      </div>
+
+      {!auth.isAuthenticated ? (
+        <div className="home-buttons">
+          <Link to="login">Login</Link>
+          <Link to="register">Jetzt Registrieren</Link>
+          <Link to="gast">Weiter Als Gast</Link>
+        </div>
+      ) : null}
     </div>
   );
 }
