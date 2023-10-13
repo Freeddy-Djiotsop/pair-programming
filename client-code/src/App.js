@@ -52,18 +52,18 @@ export default function App() {
             }
           />
           <Route
-            path="editor"
+            path="/project"
             element={
               <UserGuard>
-                <CodeEditor />
+                <Dashboard />
               </UserGuard>
             }
           />
           <Route
-            path="/dashboard"
+            path="/project/:id"
             element={
               <UserGuard>
-                <Dashboard />
+                <CodeEditor />
               </UserGuard>
             }
           />
