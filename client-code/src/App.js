@@ -5,12 +5,13 @@ import { ToastContainer } from "react-toastify";
 import MenuBar from "./components/MenuBar";
 import Gast from "./components/user/Gast";
 import Home from "./components/Home.js";
-import CodeEditor from "./components/CodeEditor";
 import Login from "./components/user/Login";
 import Register from "./components/user/Register";
 import { AuthProvider } from "./components/Auth";
 import { ProtectedRoutesGuard, UserGuard } from "./components/Guard";
 import Dashboard from "./components/Dashborad";
+import UserEditor from "./components/UserEditor";
+import GastEditor from "./components/GastEditor";
 
 export default function App() {
   return (
@@ -47,7 +48,7 @@ export default function App() {
             path="gast/editor"
             element={
               <ProtectedRoutesGuard>
-                <CodeEditor />
+                <GastEditor />
               </ProtectedRoutesGuard>
             }
           />
@@ -63,7 +64,7 @@ export default function App() {
             path="/project/:id"
             element={
               <UserGuard>
-                <CodeEditor />
+                <UserEditor />
               </UserGuard>
             }
           />
