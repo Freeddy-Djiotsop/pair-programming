@@ -42,7 +42,23 @@ export default function UserEditor() {
   const [isloadProject, setIsLoadProject] = useState(false);
   const [isCreateFile, setIsCreateFile] = useState(true);
 
-  useEffect(() => loadProject(), [isloadProject]);
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (socketContext.shareState) loadProject(socketContext.project_id);
+    else loadProject();
+  }, [isloadProject]);
 
   useEffect(() => {
     socketContext.on();
@@ -54,17 +70,7 @@ export default function UserEditor() {
     });
     socket.on("transfer_stop", () => {
       socketContext.setShareState(false);
-    });
-
-    socket.on("transfer_confirmed", (from) => {
-      notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
-      socket.emit("send_first_code", auth.user.email, from, {
-        project_id: id,
-        code: editorRef.current.getValue(),
-        extension,
-      });
-      socketContext.setTo(from);
-      socketContext.setShareState(true);
+      socketContext.setProjectId("");
     });
     socket.on("no_user", (from) => {
       notierror(`${from} nicht gefunden oder ist offline no-user`);
@@ -77,6 +83,24 @@ export default function UserEditor() {
     socket.on("transfer_denied", (from) => {
       notierror(`${from} hat die Übertragung abgehlt bestätigt`);
     });
+    socket.on("reload", (from) => {
+      notierror(
+        `${from} hat seine Seite neu geladen. Übertragung  wurde gestoppt`
+      );
+      socketContext.setShareState(false);
+      socketContext.setProjectId("");
+    });
+
+    socket.on("transfer_confirmed", (from) => {
+      notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
+      socket.emit("send_first_code", auth.user.email, from, {
+        project_id: id,
+        code: editorRef.current.getValue(),
+        extension,
+      });
+      socketContext.setTo(from);
+      socketContext.setShareState(true);
+    });
     socket.on("receive_code", (from, data) => {
       socketContext.setTo(from);
       setCodeValue(data.code);
@@ -85,6 +109,7 @@ export default function UserEditor() {
       setExtension(data.extension);
       loadProject(data.project_id);
       socketContext.setTo(from);
+      socketContext.setProjectId(data.project_id);
       setCodeValue(data.code);
     });
     socket.on("receive_file_change", (from, data) => {
