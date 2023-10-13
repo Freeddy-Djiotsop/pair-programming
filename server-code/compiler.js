@@ -39,6 +39,17 @@ const pyCompiler = () => {
   });
 };
 
+const phpCompiler = () => {
+  return new Promise((resolve, reject) => {
+    exec(`php ${filePath}`, (error, stdout, stderr) => {
+      deleteSourceCode(filePath);
+      error && reject({ error, stderr });
+      stderr && reject(stderr);
+      resolve(stdout);
+    });
+  });
+};
+
 const cppCompiler = () => {
   const jobId = path.basename(filePath).split(".")[0];
   const outPath = path.join(outputPath, `${jobId}.out`);
@@ -113,8 +124,8 @@ const runCode = async (req, res) => {
       case "js":
         output = await nodejsCompiler();
         break;
-      case "java":
-        output = await cCompiler();
+      case "php":
+        output = await phpCompiler();
         break;
     }
 
