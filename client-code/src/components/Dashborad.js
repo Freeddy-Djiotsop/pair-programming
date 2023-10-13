@@ -7,11 +7,13 @@ import { useAuth } from "./Auth";
 import { languages } from "../language";
 import { notierror, notisuccess } from "../toast";
 import { useNavigate } from "react-router-dom";
+import { useSocket } from "./SocketContext";
 
 Modal.setAppElement("#root");
 
 export default function Dashboard() {
   const auth = useAuth();
+  const socket = useSocket();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const {
@@ -21,6 +23,28 @@ export default function Dashboard() {
   } = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadProject, setLoadProject] = useState(false);
+
+  useEffect(() => socket.on(), []);
+
+  useEffect(() => {
+    axios
+      .get("project", {
+        params: {
+          email: auth.user.email,
+        },
+      })
+      .then((response) => {
+        notisuccess(response.data.message);
+        if (Array.isArray(response.data.projects))
+          setProjects(response.data.projects);
+      })
+      .catch((error) => {
+        console.log(error);
+        notierror(
+          `Fehler beim Abrufen der Projektdaten: ${error.response.data.error.message}`
+        );
+      });
+  }, [loadProject]);
 
   const onSubmit = async (data) => {
     const { name, language, description } = data;
@@ -50,26 +74,6 @@ export default function Dashboard() {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-
-  useEffect(() => {
-    axios
-      .get("project", {
-        params: {
-          email: auth.user.email,
-        },
-      })
-      .then((response) => {
-        notisuccess(response.data.message);
-        if (Array.isArray(response.data.projects))
-          setProjects(response.data.projects);
-      })
-      .catch((error) => {
-        console.log(error);
-        notierror(
-          `Fehler beim Abrufen der Projektdaten: ${error.response.data.error.message}`
-        );
-      });
-  }, [loadProject]);
 
   return (
     <>

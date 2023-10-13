@@ -1,9 +1,14 @@
 import { Link } from "react-router-dom";
 import "./styles/home.css";
 import { useAuth } from "./Auth";
+import { useSocket } from "./SocketContext";
+import { useEffect } from "react";
 
 export default function Home() {
   const auth = useAuth();
+  const socket = useSocket();
+
+  useEffect(() => socket.on(), []);
 
   return (
     <div className="description-container">

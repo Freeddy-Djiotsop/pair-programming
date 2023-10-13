@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 import { languages } from "../language";
 import { useForm } from "react-hook-form";
 import Modal from "react-modal";
+import { useSocket } from "./SocketContext";
 
 Modal.setAppElement("#root");
 const onModel = ["Project", "Folder"];
@@ -16,6 +17,7 @@ const onModel = ["Project", "Folder"];
 export default function UserEditor() {
   const { id } = useParams(); //ProjektId
   const auth = useAuth();
+  const socketContext = useSocket();
   const {
     register,
     handleSubmit,
@@ -28,8 +30,6 @@ export default function UserEditor() {
   const [height, setHeight] = useState(heightTerminalClosed);
   const [theme, setTheme] = useState("vs-light");
   const [outputs, setOutputs] = useState([]);
-  const [shareState, setShareState] = useState(false);
-  const [to, setTo] = useState("");
   const shareRef = useRef(null);
   const editorRef = useRef(null);
   const [projectName, SetProjectName] = useState("");
@@ -45,29 +45,15 @@ export default function UserEditor() {
   useEffect(() => loadProject(), [isloadProject]);
 
   useEffect(() => {
-    socket.emit("set_username", auth.user.email);
-
+    socketContext.on();
     socket.on("share_problem", (from) => {
-      setShareState(false);
+      socketContext.setShareState(false);
       notierror(
         `Es gab ein Problem bei der Verbindung mit${from}\nLaden Sie die Page erneut und versuchen es noch mal`
       );
     });
     socket.on("transfer_stop", () => {
-      setShareState(false);
-    });
-    socket.on("transfer_request", (from) => {
-      if (
-        window.confirm(
-          `${from} möchte eine Übertragung starten. Möchtest Sie akzeptieren?`
-        )
-      ) {
-        setTo(from);
-        setShareState(true);
-        socket.emit("confirm_transfer", from, auth.user.email);
-      } else {
-        socket.emit("deny_transfer", from, auth.user.email);
-      }
+      socketContext.setShareState(false);
     });
 
     socket.on("transfer_confirmed", (from) => {
@@ -77,8 +63,8 @@ export default function UserEditor() {
         code: editorRef.current.getValue(),
         extension,
       });
-      setTo(from);
-      setShareState(true);
+      socketContext.setTo(from);
+      socketContext.setShareState(true);
     });
     socket.on("no_user", (from) => {
       notierror(`${from} nicht gefunden oder ist offline no-user`);
@@ -93,20 +79,21 @@ export default function UserEditor() {
     });
     socket.on("receive_code", (from, data) => {
       setCodeValue(data.code);
-      setTo(from);
+      socketContext.setTo(from);
       setCodeValue(data.code);
     });
     socket.on("receive_first_code", (from, data) => {
       setCodeValue(data.code);
       setExtension(data.extension);
       loadProject(data.project_id);
-      setTo(from);
+      socketContext.setTo(from);
       setCodeValue(data.code);
     });
   }, []);
 
   const loadProject = (fromId) => {
     let projektId = id;
+    if (fromId === undefined && id === "share") return;
     if (fromId) projektId = fromId;
     axios
       .get("project", {
@@ -135,8 +122,8 @@ export default function UserEditor() {
 
   const handleEditorDidChange = () => {
     setCodeValue(editorRef.current.getValue());
-    if (shareState)
-      socket.emit("send_code", auth.user.email, to, {
+    if (socketContext.shareState)
+      socket.emit("send_code", auth.user.email, socketContext.to, {
         code: editorRef.current.getValue(),
       });
   };
@@ -196,7 +183,7 @@ export default function UserEditor() {
   };
 
   const handleShare = () => {
-    if (!shareState) {
+    if (!socketContext.shareState) {
       const input = window.prompt("Bitte geben Sie der Benutzername(email):");
       if (input === null) return;
 
@@ -204,8 +191,8 @@ export default function UserEditor() {
         socket.emit("request_transfer", auth.user.email, input);
       }
     } else {
-      socket.emit("stop_transfer", to);
-      setShareState(false);
+      socket.emit("stop_transfer", socketContext.to);
+      socketContext.setShareState(false);
     }
   };
 
@@ -391,7 +378,7 @@ export default function UserEditor() {
           </a>
           <a onClick={handleShare}>
             <i ref={shareRef} className="material-icons icon">
-              {shareState ? "cancel_schedule_send" : "share"}
+              {socketContext.shareState ? "cancel_schedule_send" : "share"}
             </i>
           </a>
           {auth.isAuthenticated ? (
