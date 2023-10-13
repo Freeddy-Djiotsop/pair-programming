@@ -103,8 +103,6 @@ const deleteSourceCode = (path) => {
 const runCode = async (req, res) => {
   const { language, code } = req.body;
 
-  console.log(language, "Length:", code.length);
-
   if (code === undefined) {
     return res.status(400).json({ success: false, error: "Empty code body!" });
   }

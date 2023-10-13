@@ -89,7 +89,6 @@ const collectFilesAndFolders = async (id, path = "") => {
 
   const subResults = [];
 
-  // Jetzt können Sie die Unterordner durchlaufen
   for (const subfolderId of folder.subfolders) {
     const subResult = await collectFilesAndFolders(subfolderId, currentPath);
     subResults.push(subResult);
@@ -109,7 +108,7 @@ const getProjects = async (req, res) => {
         .populate("files")
         .exec();
       const folders = [];
-      console.log(project.folders.length);
+
       for (const folder of project.folders) {
         // const tmp = await collectFilesAndFolders(folder._id.toString());
         const tmpFolder = await Folder.findById(folder._id.toString())

@@ -8,6 +8,7 @@ const redirectPath = "/project/share";
 
 export const SocketProvider = ({ children }) => {
   const [shareState, setShareState] = useState(false);
+  const [project_id, setProjectId] = useState("");
   const [to, setTo] = useState("");
   const auth = useAuth();
   const navigate = useNavigate();
@@ -35,7 +36,15 @@ export const SocketProvider = ({ children }) => {
 
   return (
     <SocketContext.Provider
-      value={{ shareState, to, setShareState, setTo, on }}
+      value={{
+        shareState,
+        to,
+        project_id,
+        setProjectId,
+        setShareState,
+        setTo,
+        on,
+      }}
     >
       {children}
     </SocketContext.Provider>

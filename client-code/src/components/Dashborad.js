@@ -40,9 +40,9 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.log(error);
-        notierror(
-          `Fehler beim Abrufen der Projektdaten: ${error.response.data.error.message}`
-        );
+        let msg = "Seite bitte neu laden";
+        if (!error.response) msg = error.response.data.error.message;
+        notierror(`Fehler beim Abrufen der Projektdaten: ${msg}`);
       });
   }, [loadProject]);
 
