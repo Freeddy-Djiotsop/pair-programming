@@ -21,77 +21,19 @@ export default function CodeEditor() {
   const [to, setTo] = useState("");
   const shareRef = useRef(null);
   const editorRef = useRef(null);
-  const files = [
-    {
-      name: "main.js",
-      language: "javascript",
-      abbr: "js",
-      value: `let res=1;
-console.log("Hello World\\n");
-for(let i=1; i<=10; i++){
-  res *=i;
-  console.log("Fahkultaet von %d ist %d\\n", i, res);
-}`,
-    },
-    {
-      name: "main.c",
-      language: "c",
-      abbr: "c",
-      value: `#include <stdio.h>
 
-int main()
-{
-  int res=1;
-  printf("Hello World\\n");
-  for(int i=1; i<=10; i++){
-      res *=i;
-      printf("Fahkultaet von %d ist %d\\n", i, res);
-  }
-
-  return 0;
-}`,
-    },
-    {
-      name: "main.cpp",
-      language: "cpp",
-      abbr: "cpp",
-      value: `#include <iostream>
-
-using namespace std;
-
-int main()
-{
-  int res = 1;
-  for(int i=1; i<=10; i++){
-    res *=i;
-    cout<<"Fahkultaet von " << i <<" ist "<< res <<endl;
-  }
-
-  return 0;
-}`,
-    },
-    {
-      name: "main.py",
-      language: "python",
-      abbr: "py",
-      value: `res = 1
-for i in range(1, 10):
-    res *= i
-    print('Fahkultaet von', i , 'ist:', res)`,
-    },
-  ];
-  const file = files.find((el) => el.name === fileName);
-  const [editorValue, setEditorValue] = useState(file.value);
+  const [editorValue, setEditorValue] = useState("");
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   };
 
   const handleEditorDidChange = () => {
-    file.value = editorRef.current.getValue();
-    setEditorValue(file.value);
+    setEditorValue(editorRef.current.getValue());
     if (shareState)
-      socket.emit("send_code", auth.user.email, to, { code: file.value });
+      socket.emit("send_code", auth.user.email, to, {
+        code: editorRef.current.getValue(),
+      });
   };
 
   useEffect(() => {
@@ -136,7 +78,7 @@ for i in range(1, 10):
     socket.on("receive_code", (from, data) => {
       setEditorValue(data.code);
       setTo(from);
-      file.value = data.code;
+      setEditorValue(data.code);
     });
   }, [socket]);
 
@@ -153,7 +95,7 @@ for i in range(1, 10):
   const runCode = async () => {
     axios
       .post("run", {
-        language: file.abbr,
+        language: "js",
         code: editorValue,
       })
       .then((res) => {
@@ -241,10 +183,9 @@ for i in range(1, 10):
           height={height}
           width="100%"
           theme={theme}
-          defaultLanguage={file.language}
+          language="javascript"
           onMount={handleEditorDidMount}
           onChange={handleEditorDidChange}
-          defaultValue={file.value}
           value={editorValue}
         />
       </div>
