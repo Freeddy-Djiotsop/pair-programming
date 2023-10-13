@@ -7,11 +7,20 @@ import { useAuth } from "./Auth";
 import { notierror, notisuccess } from "../toast";
 import { useParams } from "react-router-dom";
 import { languages } from "../language";
+import { useForm } from "react-hook-form";
+import Modal from "react-modal";
+
+Modal.setAppElement("#root");
+const onModel = ["Project", "Folder"];
 
 export default function UserEditor() {
   const { id } = useParams(); //ProjektId
   const auth = useAuth();
-  socket.emit("set_username", auth.user.email);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
   const heightTerminalClosed = "87vh";
@@ -28,6 +37,10 @@ export default function UserEditor() {
   const [files, setFiles] = useState([]);
   const [codeValue, setCodeValue] = useState("");
   const [extension, setExtension] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [parentId, setParentId] = useState("");
+  const [loadProject, setLoadProject] = useState(false);
+  const [isCreateFile, setIsCreateFile] = useState(true);
 
   useEffect(() => {
     axios
@@ -217,6 +230,49 @@ export default function UserEditor() {
     }
   };
 
+  const openModal = (id, status) => {
+    setParentId(id);
+    setIsCreateFile(status);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const onSubmit = async (data) => {
+    const { name, language } = data;
+
+    if (name.length <= 2) {
+      notierror("Name soll mehr als 2 Zeichen haben");
+      return;
+    }
+    let index = 1;
+    if (parentId === id) index = 0;
+    try {
+      if (isCreateFile)
+        await axios.post("file", {
+          email: auth.user.email,
+          parentId,
+          name,
+          model: onModel[index],
+          extension: languages[language].extension,
+        });
+      else
+        await axios.post("folder", {
+          email: auth.user.email,
+          parentId,
+          name,
+          model: onModel[index],
+        });
+      closeModal();
+      setLoadProject(!loadProject);
+      notisuccess(`${name} erfolgreich erstellt`);
+    } catch (error) {
+      notierror(error.response.data.error.message);
+    }
+  };
+
   const loadFiles = (data) => {
     return data.map((file) => (
       <li
@@ -238,7 +294,9 @@ export default function UserEditor() {
                 <a className="drop-down-button">delete</a>
               </li>
               <li>
-                <a className="drop-down-button">download</a>
+                <a className="drop-down-button" onClick={openModal}>
+                  download
+                </a>
               </li>
               <li>
                 <a className="drop-down-button" onClick={() => {}}>
@@ -276,10 +334,20 @@ export default function UserEditor() {
                 <a className="drop-down-button">delete</a>
               </li>
               <li>
-                <a className="drop-down-button">New File</a>
+                <a
+                  className="drop-down-button"
+                  onClick={() => openModal(folder.id, true)}
+                >
+                  New File
+                </a>
               </li>
               <li>
-                <a className="drop-down-button">New Folder</a>
+                <a
+                  className="drop-down-button"
+                  onClick={() => openModal(folder.id, false)}
+                >
+                  New Folder
+                </a>
               </li>
             </ul>
           </li>
@@ -297,91 +365,149 @@ export default function UserEditor() {
   };
 
   return (
-    <div className="editor-panel">
-      <nav className="sidebar-menu-bar">
-        <a onClick={runCode}>
-          <i className="material-icons icon">play_arrow</i>
-        </a>
-        <a onClick={handleShare}>
-          <i ref={shareRef} className="material-icons icon">
-            {shareState ? "cancel_schedule_send" : "share"}
-          </i>
-        </a>
-        {auth.isAuthenticated ? (
-          <a onClick={auth.logout}>
-            <i className="material-icons icon">logout</i>
+    <>
+      <div className="editor-panel">
+        <nav className="sidebar-menu-bar">
+          <a onClick={runCode}>
+            <i className="material-icons icon">play_arrow</i>
           </a>
-        ) : null}
-        <div className="mode" onClick={addDark}>
-          <a className="dark_light">
-            <i ref={modeRef} className="material-icons icon">
-              dark_mode
+          <a onClick={handleShare}>
+            <i ref={shareRef} className="material-icons icon">
+              {shareState ? "cancel_schedule_send" : "share"}
             </i>
           </a>
+          {auth.isAuthenticated ? (
+            <a onClick={auth.logout}>
+              <i className="material-icons icon">logout</i>
+            </a>
+          ) : null}
+          <div className="mode" onClick={addDark}>
+            <a className="dark_light">
+              <i ref={modeRef} className="material-icons icon">
+                dark_mode
+              </i>
+            </a>
+          </div>
+        </nav>
+        <div className="code-editor">
+          <Editor
+            height={height}
+            width="80%"
+            theme={theme}
+            language={extension ? languages[extension].name : "txt"}
+            onMount={handleEditorDidMount}
+            onChange={handleEditorDidChange}
+            value={codeValue}
+          />
         </div>
-      </nav>
-      <div className="code-editor">
-        <Editor
-          height={height}
-          width="80%"
-          theme={theme}
-          language={extension ? languages[extension].name : "txt"}
-          onMount={handleEditorDidMount}
-          onChange={handleEditorDidChange}
-          value={codeValue}
-        />
-      </div>
-      <div className="editor-right-panel">
-        <div className="editor-right-panel-bar">
-          <ul className="bar-content">
-            <li className="project-name truncate-text">
-              <span>{projectName}</span>
-            </li>
+        <div className="editor-right-panel">
+          <div className="editor-right-panel-bar">
+            <ul className="bar-content">
+              <li className="project-name truncate-text">
+                <span>{projectName}</span>
+              </li>
 
-            <li className="three-dot">
-              <a className="three-dot-button">
-                <i className="material-icons">more_vert</i>
-              </a>
-              <ul className="project drop-down">
-                <li>
-                  <a className="drop-down-button">New File</a>
-                </li>
-                <li>
-                  <a className="drop-down-button">New Folder</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-        <div className="editor-right-panel-content">
-          <div className="project-folders">
-            <ul className="editor-folders">{loadFolders(folders)}</ul>
+              <li className="three-dot">
+                <a className="three-dot-button">
+                  <i className="material-icons">more_vert</i>
+                </a>
+                <ul className="project drop-down">
+                  <li>
+                    <a
+                      className="drop-down-button"
+                      onClick={() => openModal(id, true)}
+                    >
+                      New File
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className="drop-down-button"
+                      onClick={() => openModal(id, false)}
+                    >
+                      New Folder
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
-          <div className="project-files">
-            <ul className="editor-files">{loadFiles(files)}</ul>
+          <div className="editor-right-panel-content">
+            <div className="project-folders">
+              <ul className="editor-folders">{loadFolders(folders)}</ul>
+            </div>
+            <div className="project-files">
+              <ul className="editor-files">{loadFiles(files)}</ul>
+            </div>
+          </div>
+        </div>
+        <div className="terminal-bar">
+          <a onClick={closeTerminal}>
+            <i className="material-icons icon">close</i>
+          </a>
+          <a onClick={openTerminal}>
+            <i className="material-icons icon">minimize</i>
+          </a>
+          <a onClick={vollscreenTerminal}>
+            <i className="material-icons icon">expand_less</i>
+          </a>
+        </div>
+        <div ref={terminalRef} className="terminal">
+          <div className="termin-output">
+            {outputs.map((text, index) => (
+              <p key={index}>
+                {text.includes(".c:") ? text.split(".c:")[1] : text}
+              </p>
+            ))}
           </div>
         </div>
       </div>
-      <div className="terminal-bar">
-        <a onClick={closeTerminal}>
-          <i className="material-icons icon">close</i>
-        </a>
-        <a onClick={openTerminal}>
-          <i className="material-icons icon">minimize</i>
-        </a>
-        <a onClick={vollscreenTerminal}>
-          <i className="material-icons icon">expand_less</i>
-        </a>
-      </div>
-      <div ref={terminalRef} className="terminal">
-        <div className="termin-output">
-          {outputs.map((text, index) => (
-            <p key={index}>
-              {text.includes(".c:") ? text.split(".c:")[1] : text}
-            </p>
-          ))}
-        </div>
-      </div>
-    </div>
+      <Modal
+        isOpen={isModalOpen}
+        appElement={document.getElementById("root")}
+        className={
+          isCreateFile ? "editor-custom-modal" : "folder editor-custom-modal"
+        }
+        overlayClassName="custom-overlay"
+        onRequestClose={closeModal}
+        contentLabel={isCreateFile ? "Create new File" : "Create new Folder"}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="dashboard-input-box">
+            <input
+              type="text"
+              placeholder="Enter a name"
+              autoFocus
+              {...register("name", { required: true })}
+            />
+          </div>
+          {isCreateFile ? (
+            <div className="dashboard-selection">
+              <label htmlFor="language" className="label">
+                Choose a language:
+              </label>
+              <select
+                className="select"
+                {...register("language", { required: true })}
+              >
+                {Object.keys(languages).map((key) => (
+                  <option key={key} value={key}>
+                    {languages[key].extension}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+          <div
+            className={
+              isCreateFile ? "dasboard-button" : "folder dasboard-button"
+            }
+          >
+            <button onClick={closeModal}>Abbrechen</button>
+            <button type="submit">Erstellen</button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }

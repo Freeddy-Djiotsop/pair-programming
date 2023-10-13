@@ -200,6 +200,25 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   border-bottom: 2px solid transparent;
 }
 
+/*---Modal---*/
+.editor-custom-modal {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 180px;
+  background-color: var(--body-color);
+  padding: 20px;
+  border-radius: 8px;
+}
+.folder.editor-custom-modal {
+  height: 140px;
+}
+.folder.dasboard-button {
+  margin-top: 10px;
+}
+
 /* ---Terminal--- */
 .terminal {
   width: 80%;
