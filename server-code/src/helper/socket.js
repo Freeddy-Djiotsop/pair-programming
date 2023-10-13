@@ -67,6 +67,11 @@ const socket = (server) => {
       io.to(toSocketId).emit("receive_first_code", from, data);
     });
 
+    socket.on("send_file_change", (from, to, data) => {
+      const toSocketId = userConnections[to];
+      io.to(toSocketId).emit("receive_file_change", from, data);
+    });
+
     socket.on("stop_transfer", (to) => {
       const toSocketId = userConnections[to];
       io.to(toSocketId).emit("transfer_stop");

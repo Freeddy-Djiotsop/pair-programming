@@ -78,16 +78,20 @@ export default function UserEditor() {
       notierror(`${from} hat die Übertragung abgehlt bestätigt`);
     });
     socket.on("receive_code", (from, data) => {
-      setCodeValue(data.code);
       socketContext.setTo(from);
       setCodeValue(data.code);
     });
     socket.on("receive_first_code", (from, data) => {
-      setCodeValue(data.code);
       setExtension(data.extension);
       loadProject(data.project_id);
       socketContext.setTo(from);
       setCodeValue(data.code);
+    });
+    socket.on("receive_file_change", (from, data) => {
+      setExtension(data.extension);
+      socketContext.setTo(from);
+      setCodeValue(data.code);
+      fileHighlight(data.file_id);
     });
   }, []);
 
@@ -196,6 +200,13 @@ export default function UserEditor() {
     }
   };
 
+  const fileHighlight = (id) => {
+    document.querySelectorAll("li.file-link").forEach((li) => {
+      li.style.backgroundColor = "transparent";
+    });
+    document.getElementById(id).style.backgroundColor = "#dddada";
+  };
+
   const handleClickFile = (id) => {
     axios
       .get("file", {
@@ -208,10 +219,14 @@ export default function UserEditor() {
         const file = response.data.file;
         setCodeValue(file.content);
         setExtension(file.extension);
-        document.querySelectorAll("li.file-link").forEach((li) => {
-          li.style.backgroundColor = "transparent";
-        });
-        document.getElementById(id).style.backgroundColor = "#dddada";
+        fileHighlight(id);
+        if (socketContext.shareState) {
+          socket.emit("send_file_change", auth.user.email, socketContext.to, {
+            file_id: file.id,
+            code: file.content,
+            extension: file.extension,
+          });
+        }
       })
       .catch((error) => {
         notierror(error.response.data.error.message);
