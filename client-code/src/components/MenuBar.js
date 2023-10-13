@@ -13,11 +13,9 @@ export default function MenuBar() {
       </Link>
       <nav className="top-menu-bar">
         <Link to="">Home</Link>
-        <a href="/#">About us</a>
         {auth.isAuthenticated ? (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/editor">Editor</Link>
+            <Link to="/project">Dashboard</Link>
             <a onClick={auth.logout}>Logout</a>
           </>
         ) : null}
