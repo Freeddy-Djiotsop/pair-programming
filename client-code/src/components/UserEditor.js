@@ -178,9 +178,53 @@ export default function UserEditor() {
     }
   };
 
+  const handleClickFile = (id) => {
+    axios
+      .get("file", {
+        params: {
+          id,
+        },
+      })
+      .then((response) => {
+        console.error(response);
+        const file = response.data.file;
+        setCodeValue(file.content);
+        setExtension(file.extension);
+        document.querySelectorAll("li.file-link").forEach((li) => {
+          li.style.backgroundColor = "transparent";
+        });
+        document.getElementById(id).style.backgroundColor = "#dddada";
+      })
+      .catch((error) => {
+        notierror(error.response.data.error.message);
+        console.error(error);
+      });
+  };
+
+  const handleClickFolder = (id) => {
+    document.querySelectorAll("li.folder-link").forEach((li) => {
+      li.querySelector("a.folder-expanded i.material-icons").innerHTML =
+        "expand_more";
+      li.querySelector("ul.folder-bar").style.backgroundColor = "#e4e9f7";
+    });
+    const liTag = document.getElementById(id);
+
+    const state = liTag.classList.toggle("open");
+    if (state) {
+      liTag.querySelector("ul.folder-bar").style.backgroundColor = "#cad6f7";
+      liTag.querySelector("a.folder-expanded i.material-icons").innerHTML =
+        "expand_less";
+    }
+  };
+
   const loadFiles = (data) => {
     return data.map((file) => (
-      <li className="file-link" key={file.id} id={file.id}>
+      <li
+        className="file-link"
+        key={file.id}
+        id={file.id}
+        onClick={() => handleClickFile(file.id)}
+      >
         <ul className="file-bar">
           <li className="file-name truncate-text">
             <a>{file.name}</a>
@@ -210,7 +254,12 @@ export default function UserEditor() {
 
   const loadFolders = (data) => {
     return data.map((folder) => (
-      <li className="folder-link" key={folder.id} id={folder.id}>
+      <li
+        className="folder-link"
+        key={folder.id}
+        id={folder.id}
+        onClick={() => handleClickFolder(folder.id)}
+      >
         <ul className="folder-bar">
           <li className="folder-name truncate-text">
             <a className="folder-expanded">
