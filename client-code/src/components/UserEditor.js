@@ -5,8 +5,11 @@ import { socket } from "../api/socket";
 import "./styles/userEditor.css";
 import { useAuth } from "./Auth";
 import { notierror, notisuccess } from "../toast";
+import { useParams } from "react-router-dom";
+import { languages } from "../language";
 
 export default function UserEditor() {
+  const { id } = useParams(); //ProjektId
   const auth = useAuth();
   socket.emit("set_username", auth.user.email);
   const modeRef = useRef(null);
@@ -15,28 +18,42 @@ export default function UserEditor() {
   const heightTerminalOpened = "70vh";
   const [height, setHeight] = useState(heightTerminalClosed);
   const [theme, setTheme] = useState("vs-light");
-  const [fileName, setFileName] = useState("main.c");
   const [outputs, setOutputs] = useState([]);
   const [shareState, setShareState] = useState(false);
   const [to, setTo] = useState("");
   const shareRef = useRef(null);
   const editorRef = useRef(null);
-
-  const [editorValue, setEditorValue] = useState("");
-
-  const handleEditorDidMount = (editor, monaco) => {
-    editorRef.current = editor;
-  };
-
-  const handleEditorDidChange = () => {
-    setEditorValue(editorRef.current.getValue());
-    if (shareState)
-      socket.emit("send_code", auth.user.email, to, {
-        code: editorRef.current.getValue(),
-      });
-  };
+  const [projectName, SetProjectName] = useState("");
+  const [folders, setFolders] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [codeValue, setCodeValue] = useState("");
+  const [extension, setExtension] = useState("");
 
   useEffect(() => {
+    axios
+      .get("project", {
+        params: {
+          id,
+        },
+      })
+      .then((response) => {
+        const tmp = response.data;
+        console.log(tmp);
+        SetProjectName(tmp.project.name);
+        setFiles(tmp.files);
+        setFolders(tmp.folders);
+        setCodeValue(tmp.files[0].content);
+        setExtension(tmp.files[0].extension);
+      })
+      .catch((error) => {
+        console.log(error);
+        notierror(`Fehler beim Abrufen der Projektdaten, Seite erneut laden`);
+      });
+  }, []);
+
+  useEffect(() => {
+    socket.emit("set_username", auth.user.email);
+
     socket.on("share_problem", (from) => {
       setShareState(false);
       notierror(
@@ -62,6 +79,7 @@ export default function UserEditor() {
 
     socket.on("transfer_confirmed", (from) => {
       notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
+      setTo(from);
       setShareState(true);
     });
     socket.on("no_user", (from) => {
@@ -76,11 +94,21 @@ export default function UserEditor() {
       notierror(`${from} hat die Übertragung abgehlt bestätigt`);
     });
     socket.on("receive_code", (from, data) => {
-      setEditorValue(data.code);
+      setCodeValue(data.code);
       setTo(from);
-      setEditorValue(data.code);
+      setCodeValue(data.code);
     });
-  }, [socket]);
+  }, []);
+
+  const handleEditorDidMount = (editor, monaco) => {
+    editorRef.current = editor;
+  };
+
+  const handleEditorDidChange = () => {
+    setCodeValue(editorRef.current.getValue());
+    if (shareState)
+      socket.emit("send_code", auth.user.email, to, { code: codeValue });
+  };
 
   const addDark = () => {
     document.querySelector("body").classList.toggle("dark");
@@ -92,17 +120,28 @@ export default function UserEditor() {
       modeRef.current.innerHTML = "dark_mode";
     }
   };
+
   const runCode = async () => {
+    if (extension === "txt" || extension === "html" || extension === "css") {
+      notierror(`.${extension} Dateien werden nicht übersetzt`);
+      return;
+    }
+    if (codeValue.length === 0) {
+      notierror("Editor ist leer");
+      return;
+    }
     axios
       .post("run", {
-        language: "js",
-        code: editorValue,
+        language: extension,
+        code: codeValue,
       })
       .then((res) => {
+        terminalRef.current.style.backgroundColor = "#000";
         setOutputs(res.data.output.split("\n"));
       })
       .catch((error) => {
         console.error(error.response.data.error);
+        terminalRef.current.style.backgroundColor = "#702626";
         setOutputs(error.response.data.error.stderr.split("\n"));
       })
       .finally(() => {
@@ -183,10 +222,10 @@ export default function UserEditor() {
           height={height}
           width="100%"
           theme={theme}
-          language="javascript"
+          language={extension ? languages[extension].name : "txt"}
           onMount={handleEditorDidMount}
           onChange={handleEditorDidChange}
-          value={editorValue}
+          value={codeValue}
         />
       </div>
       <div className="terminal-bar">
