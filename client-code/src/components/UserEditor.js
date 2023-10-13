@@ -178,6 +178,75 @@ export default function UserEditor() {
     }
   };
 
+  const loadFiles = (data) => {
+    return data.map((file) => (
+      <li className="file-link" key={file.id} id={file.id}>
+        <ul className="file-bar">
+          <li className="file-name truncate-text">
+            <a>{file.name}</a>
+          </li>
+          <li className="file-three-dot-button">
+            <a>
+              <i className="material-icons">more_vert</i>
+            </a>
+            <ul className="file drop-down">
+              <li>
+                <a className="drop-down-button">delete</a>
+              </li>
+              <li>
+                <a className="drop-down-button">download</a>
+              </li>
+              <li>
+                <a className="drop-down-button" onClick={() => {}}>
+                  share
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    ));
+  };
+
+  const loadFolders = (data) => {
+    return data.map((folder) => (
+      <li className="folder-link" key={folder.id} id={folder.id}>
+        <ul className="folder-bar">
+          <li className="folder-name truncate-text">
+            <a className="folder-expanded">
+              <i className="material-icons">expand_more</i>
+            </a>
+            <a className="folder-name">{folder.name}</a>
+          </li>
+          <li className="folder-three-dot-button">
+            <a>
+              <i className="material-icons">more_vert</i>
+            </a>
+            <ul className="folder drop-down">
+              <li>
+                <a className="drop-down-button">delete</a>
+              </li>
+              <li>
+                <a className="drop-down-button">New File</a>
+              </li>
+              <li>
+                <a className="drop-down-button">New Folder</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <div className="folder-content">
+          <div>
+            <ul>{loadFolders(folder.subfolders)}</ul>
+          </div>
+          <div>
+            <ul>{loadFiles(folder.files)}</ul>
+          </div>
+        </div>
+      </li>
+    ));
+  };
+
   return (
     <div className="editor-panel">
       <nav className="sidebar-menu-bar">
@@ -205,13 +274,44 @@ export default function UserEditor() {
       <div className="code-editor">
         <Editor
           height={height}
-          width="100%"
+          width="80%"
           theme={theme}
           language={extension ? languages[extension].name : "txt"}
           onMount={handleEditorDidMount}
           onChange={handleEditorDidChange}
           value={codeValue}
         />
+      </div>
+      <div className="editor-right-panel">
+        <div className="editor-right-panel-bar">
+          <ul className="bar-content">
+            <li className="project-name truncate-text">
+              <span>{projectName}</span>
+            </li>
+
+            <li className="three-dot">
+              <a className="three-dot-button">
+                <i className="material-icons">more_vert</i>
+              </a>
+              <ul className="project drop-down">
+                <li>
+                  <a className="drop-down-button">New File</a>
+                </li>
+                <li>
+                  <a className="drop-down-button">New Folder</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div className="editor-right-panel-content">
+          <div className="project-folders">
+            <ul className="editor-folders">{loadFolders(folders)}</ul>
+          </div>
+          <div className="project-files">
+            <ul className="editor-files">{loadFiles(files)}</ul>
+          </div>
+        </div>
       </div>
       <div className="terminal-bar">
         <a onClick={closeTerminal}>

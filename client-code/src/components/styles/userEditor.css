@@ -16,7 +16,8 @@
 }
 
 .sidebar-menu-bar a:hover {
-  color: red;
+  color: var(--menu-bar-color-light);
+  cursor: pointer;
 }
 .sidebar-menu-bar a,
 .sidebar-menu-bar div.mode a {
@@ -49,9 +50,159 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   color: #18191a;
 }
 
+/* ----Right-Panel----*/
+.editor-right-panel {
+  position: fixed;
+  display: flex;
+  top: 9.2%;
+  right: 0%;
+  flex-direction: column;
+  background: #fff;
+  width: 196px;
+  height: 91vh;
+}
+
+.editor-right-panel-bar {
+  background: var(--body-color);
+  width: 100%;
+  height: 30px;
+  padding-top: 3px;
+  margin-bottom: 10px;
+}
+
+.editor-right-panel-bar .bar-content {
+  display: flex;
+  width: 100%;
+}
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-name {
+  width: 180px;
+  font-size: 20px;
+  margin-top: -5px;
+  padding-left: 2px;
+  font-weight: 600;
+  font-variant: all-small-caps;
+}
+
+.three-dot {
+  font-size: 20px;
+}
+
+/* .three-dot-button {
+  background-color: #000;
+} */
+
+.drop-down {
+  position: absolute;
+  top: 20px;
+  right: 0%;
+  width: 125px;
+  background-color: var(--body-color);
+  margin: 0 -0.5rem;
+  z-index: 1;
+  display: none;
+}
+
+.drop-down li {
+  height: 100%;
+  padding: 0.1rem 1rem;
+  margin: 0.2rem 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.drop-down li:hover {
+  background-color: #b3b1b1;
+}
+
+.editor-files,
+.folder-link {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 25px;
+}
+.file-bar,
+.folder-bar {
+  display: flex;
+  width: 100%;
+}
+.file-name,
+.folder-name {
+  width: 100%;
+}
+.file-bar:hover {
+  background-color: #b3b1b1;
+}
+.file-three-dot-button {
+  position: relative;
+  right: 0%;
+}
+.file-three-dot-button:hover {
+  color: #fff;
+}
+
+.file.drop-down,
+.folder.drop-down {
+  width: 110px;
+  top: -10px;
+  color: #000;
+  margin-top: 2.5rem;
+  margin-left: 0.5rem;
+}
+
+.project-files {
+  margin: auto;
+}
+
+.three-dot:hover .project.drop-down {
+  display: block;
+}
+
+.file-three-dot-button:hover .file.drop-down,
+.folder-three-dot-button:hover .folder.drop-down {
+  display: block;
+}
+
+/*---Folder---*/
+.folder.drop-down {
+  top: 10px;
+  width: 120px;
+}
+
+.folder-content {
+  width: auto;
+  margin-left: 20px;
+  padding-left: 10px;
+  border-left: 2px solid var(--body-color);
+  border-bottom: 2px solid var(--body-color);
+  display: none;
+}
+
+.folder-link {
+  background-color: var(--body-color);
+  margin-bottom: 0.5rem;
+}
+
+.folder-link.open {
+  background-color: #fff;
+  height: fit-content;
+  margin-bottom: 20px;
+}
+
+.folder-link.open .folder-content {
+  display: block;
+  border-left: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+}
+
 /* ---Terminal--- */
 .terminal {
-  width: 95.6%;
+  width: 80%;
   background-color: #000;
   height: 115px;
   margin-left: 50px;
@@ -61,7 +212,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
 .terminal-bar {
   display: flex;
   flex-direction: row-reverse;
-  width: 100%;
+  width: 85%;
   background-color: var(--body-color);
 }
 
