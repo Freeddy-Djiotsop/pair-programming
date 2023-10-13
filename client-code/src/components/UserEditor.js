@@ -181,21 +181,6 @@ export default function UserEditor() {
   return (
     <div className="editor-panel">
       <nav className="sidebar-menu-bar">
-        <a href="/#">
-          <i className="material-icons icon">description</i>
-        </a>
-        <a href="/#">
-          <i className="material-icons icon">file_open</i>
-        </a>
-        <a href="/#">
-          <i className="material-icons icon">file_upload</i>
-        </a>
-        <a href="/#">
-          <i className="material-icons icon">download</i>
-        </a>
-        <a href="/#">
-          <i className="material-icons icon">note_add</i>
-        </a>
         <a onClick={runCode}>
           <i className="material-icons icon">play_arrow</i>
         </a>
