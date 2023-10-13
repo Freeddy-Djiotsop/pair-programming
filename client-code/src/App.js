@@ -12,63 +12,66 @@ import { ProtectedRoutesGuard, UserGuard } from "./components/Guard";
 import Dashboard from "./components/Dashborad";
 import UserEditor from "./components/UserEditor";
 import GastEditor from "./components/GastEditor";
+import { SocketProvider } from "./components/SocketContext";
 
 export default function App() {
   return (
     <div className="App">
       <AuthProvider>
         <MenuBar />
-        <Routes>
-          <Route path="" element={<Home />} />
-          <Route
-            path="gast"
-            element={
-              <ProtectedRoutesGuard>
-                <Gast />
-              </ProtectedRoutesGuard>
-            }
-          />
-          <Route
-            path="login"
-            element={
-              <ProtectedRoutesGuard>
-                <Login />
-              </ProtectedRoutesGuard>
-            }
-          />
-          <Route
-            path="register"
-            element={
-              <ProtectedRoutesGuard>
-                <Register />
-              </ProtectedRoutesGuard>
-            }
-          />
-          <Route
-            path="gast/editor"
-            element={
-              <ProtectedRoutesGuard>
-                <GastEditor />
-              </ProtectedRoutesGuard>
-            }
-          />
-          <Route
-            path="/project"
-            element={
-              <UserGuard>
-                <Dashboard />
-              </UserGuard>
-            }
-          />
-          <Route
-            path="/project/:id"
-            element={
-              <UserGuard>
-                <UserEditor />
-              </UserGuard>
-            }
-          />
-        </Routes>
+        <SocketProvider>
+          <Routes>
+            <Route path="" element={<Home />} />
+            <Route
+              path="gast"
+              element={
+                <ProtectedRoutesGuard>
+                  <Gast />
+                </ProtectedRoutesGuard>
+              }
+            />
+            <Route
+              path="login"
+              element={
+                <ProtectedRoutesGuard>
+                  <Login />
+                </ProtectedRoutesGuard>
+              }
+            />
+            <Route
+              path="register"
+              element={
+                <ProtectedRoutesGuard>
+                  <Register />
+                </ProtectedRoutesGuard>
+              }
+            />
+            <Route
+              path="gast/editor"
+              element={
+                <ProtectedRoutesGuard>
+                  <GastEditor />
+                </ProtectedRoutesGuard>
+              }
+            />
+            <Route
+              path="/project"
+              element={
+                <UserGuard>
+                  <Dashboard />
+                </UserGuard>
+              }
+            />
+            <Route
+              path="/project/:id"
+              element={
+                <UserGuard>
+                  <UserEditor />
+                </UserGuard>
+              }
+            />
+          </Routes>
+        </SocketProvider>
         <ToastContainer />
       </AuthProvider>
     </div>
