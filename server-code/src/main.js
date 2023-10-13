@@ -1,9 +1,13 @@
+require("./init");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const { socket } = require("./helper/socket");
 const { runCode } = require("./compiler");
 const { login, register } = require("./helper/user");
+const { getProjects, createProject } = require("./helper/project");
+const { getFile, createFile } = require("./helper/file");
+const { getFolder, createFolder } = require("./helper/folder");
 
 const app = express();
 const port = 3001;
@@ -19,6 +23,15 @@ app.get("", (req, res) => {
 app.post("/user/register", register);
 app.post("/user/login", login);
 app.post("/run", runCode);
+
+app.get("/project", getProjects);
+app.post("/project", createProject);
+
+app.get("/file", getFile);
+app.post("/file", createFile);
+
+app.get("/folder", getFolder);
+app.post("/folder", createFolder);
 
 socket(server);
 
