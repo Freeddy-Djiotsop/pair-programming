@@ -72,3 +72,8 @@ div.feature-card {
   border-radius: 8px;
   flex: 1 1 calc(33.33% - 1rem);
 }
+
+li {
+  list-style: none;
+  cursor: pointer;
+}
