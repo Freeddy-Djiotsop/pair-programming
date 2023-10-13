@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "../api/axios";
 import { socket } from "../api/socket";
-import "./styles/codeEditor.css";
+import "./styles/userEditor.css";
 import { useAuth } from "./Auth";
 import { notierror, notisuccess } from "../toast";
 
-export default function CodeEditor() {
+export default function UserEditor() {
   const auth = useAuth();
   socket.emit("set_username", auth.user.email);
   const modeRef = useRef(null);
