@@ -39,30 +39,10 @@ export default function UserEditor() {
   const [extension, setExtension] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [parentId, setParentId] = useState("");
-  const [loadProject, setLoadProject] = useState(false);
+  const [isloadProject, setIsLoadProject] = useState(false);
   const [isCreateFile, setIsCreateFile] = useState(true);
 
-  useEffect(() => {
-    axios
-      .get("project", {
-        params: {
-          id,
-        },
-      })
-      .then((response) => {
-        const tmp = response.data;
-        console.log(tmp);
-        SetProjectName(tmp.project.name);
-        setFiles(tmp.files);
-        setFolders(tmp.folders);
-        setCodeValue(tmp.files[0].content);
-        setExtension(tmp.files[0].extension);
-      })
-      .catch((error) => {
-        console.log(error);
-        notierror(`Fehler beim Abrufen der Projektdaten, Seite erneut laden`);
-      });
-  }, []);
+  useEffect(() => loadProject(), [isloadProject]);
 
   useEffect(() => {
     socket.emit("set_username", auth.user.email);
@@ -92,6 +72,11 @@ export default function UserEditor() {
 
     socket.on("transfer_confirmed", (from) => {
       notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
+      socket.emit("send_first_code", auth.user.email, from, {
+        project_id: id,
+        code: editorRef.current.getValue(),
+        extension,
+      });
       setTo(from);
       setShareState(true);
     });
@@ -111,7 +96,38 @@ export default function UserEditor() {
       setTo(from);
       setCodeValue(data.code);
     });
+    socket.on("receive_first_code", (from, data) => {
+      setCodeValue(data.code);
+      setExtension(data.extension);
+      loadProject(data.project_id);
+      setTo(from);
+      setCodeValue(data.code);
+    });
   }, []);
+
+  const loadProject = (fromId) => {
+    let projektId = id;
+    if (fromId) projektId = fromId;
+    axios
+      .get("project", {
+        params: {
+          id: projektId,
+        },
+      })
+      .then((response) => {
+        const tmp = response.data;
+        console.log(tmp);
+        SetProjectName(tmp.project.name);
+        setFiles(tmp.files);
+        setFolders(tmp.folders);
+        setCodeValue(tmp.files[0].content);
+        setExtension(tmp.files[0].extension);
+      })
+      .catch((error) => {
+        console.log(error);
+        notierror(`Fehler beim Abrufen der Projektdaten, Seite erneut laden`);
+      });
+  };
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -120,7 +136,9 @@ export default function UserEditor() {
   const handleEditorDidChange = () => {
     setCodeValue(editorRef.current.getValue());
     if (shareState)
-      socket.emit("send_code", auth.user.email, to, { code: codeValue });
+      socket.emit("send_code", auth.user.email, to, {
+        code: editorRef.current.getValue(),
+      });
   };
 
   const addDark = () => {
@@ -266,7 +284,7 @@ export default function UserEditor() {
           model: onModel[index],
         });
       closeModal();
-      setLoadProject(!loadProject);
+      setIsLoadProject(!isloadProject);
       notisuccess(`${name} erfolgreich erstellt`);
     } catch (error) {
       notierror(error.response.data.error.message);

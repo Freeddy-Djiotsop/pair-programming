@@ -37,7 +37,7 @@ const socket = (server) => {
       }
     });
 
-    socket.on("confirm_transfer", (from, to) => {
+    socket.on("confirm_transfer", (from, to, data) => {
       console.log(pendingRequests);
       if (pendingRequests[to] === from) {
         const fromSocketId = userConnections[from];
@@ -58,9 +58,13 @@ const socket = (server) => {
     });
 
     socket.on("send_code", (from, to, data) => {
-      console.log(data.code);
       const toSocketId = userConnections[to];
       io.to(toSocketId).emit("receive_code", from, data);
+    });
+
+    socket.on("send_first_code", (from, to, data) => {
+      const toSocketId = userConnections[to];
+      io.to(toSocketId).emit("receive_first_code", from, data);
     });
 
     socket.on("stop_transfer", (to) => {
