@@ -11,7 +11,7 @@ mongoose
 const userSchema = new mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   hash: { type: String, required: true },
   projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
 });
