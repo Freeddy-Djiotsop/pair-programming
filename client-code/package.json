@@ -8,7 +8,6 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "axios": "^1.4.0",
-    "bcryptjs": "^2.4.3",
     "monaco-editor": "^0.40.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -47,7 +46,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "webpack": "^5.89.0"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

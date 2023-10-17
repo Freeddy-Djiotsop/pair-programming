@@ -2,10 +2,9 @@ import "./styles/register.css";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { notierror, notisuccess } from "../../toast";
+import { notierror } from "../../toast";
 import { useAuth } from "../Auth";
 import axios from "../../api/axios";
-import { PasswordEntcrypt } from "./passwort";
 
 export default function Register() {
   const {
@@ -19,21 +18,20 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      const hash = PasswordEntcrypt(data.password);
-      const response = await axios.post("user/register", {
-        firstname: data.firstName,
-        lastname: data.lastName,
-        email: data.email,
-        hash,
+      const { firstname, lastname, email, password } = data;
+      await axios.post("user/register", {
+        firstname,
+        lastname,
+        email,
+        password,
       });
-      auth.setUser({ email: response.data.email });
+      auth.setUser({ email });
       navigate("/login");
-      notisuccess("Registrierung erfolgreich:");
-      console.log("Registrierung erfolgreich:", response.data);
     } catch (error) {
-      if (!error?.response)
+      if (error.response?.status === 409)
+        notierror(error.response.data.error.message);
+      else if (!error?.response)
         notierror("Fehler bei der Registrierung, Keine Response vom Server");
-      else if (error.response?.status === 409) notierror("Email schon belegt");
       else notierror("Fehler bei der Registrierung,");
       console.error("Fehler bei der Registrierung:", error);
     }
@@ -51,7 +49,7 @@ export default function Register() {
               type="text"
               placeholder="John"
               autoFocus
-              {...register("firstName", { required: true })}
+              {...register("firstname", { required: true })}
             />
             <i className="material-icons icon">person</i>
           </div>
@@ -62,7 +60,7 @@ export default function Register() {
             <input
               type="text"
               placeholder="Doe"
-              {...register("lastName", { required: true })}
+              {...register("lastname", { required: true })}
             />
             <i className="material-icons icon">person</i>
           </div>

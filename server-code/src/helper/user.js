@@ -1,9 +1,10 @@
+const { passwordCompare, passwordHash } = require("./hashPasswort");
 const { User } = require("./mongodb");
 const jwt = require("jsonwebtoken");
 
 const register = (req, res) => {
-  const { firstname, lastname, email, hash } = req.body;
-  console.log(req.body);
+  const { firstname, lastname, email, password } = req.body;
+  const hash = passwordHash(password);
   try {
     const user = new User({
       firstname,
@@ -20,7 +21,15 @@ const register = (req, res) => {
         });
       })
       .catch((error) => {
-        throw error;
+        if (error.code === 11000 || error.code === 11001) {
+          return res.status(409).json({
+            error: {
+              message: `Email ${email} schon belegt. Bitte Email ändern.`,
+            },
+          });
+        } else {
+          throw error;
+        }
       });
   } catch (error) {
     res.status(500).json({ error: { message: error } });
@@ -29,16 +38,22 @@ const register = (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email } = req.body;
-    console.log(req.body);
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user)
       return res
         .status(400)
         .json({ error: { message: "Invalid credentials" } });
+
+    const match = passwordCompare(password, user.hash);
+    if (!match) {
+      return res
+        .status(500)
+        .json({ error: { message: "Email or password is invalid" } });
+    }
+
     const accessToken = jwt.sign({ email }, "token", { expiresIn: "2h" });
 
-    console.log("finish");
     res.json({
       user: {
         firstname: user.firstname,
