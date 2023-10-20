@@ -5,7 +5,7 @@ import { socket } from "../api/socket";
 import "./styles/userEditor.css";
 import { useAuth } from "./Auth";
 import { notierror, notisuccess } from "../toast";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { languages } from "../language";
 import { useForm } from "react-hook-form";
 import Modal from "react-modal";
@@ -13,16 +13,16 @@ import { useSocket } from "./SocketContext";
 
 Modal.setAppElement("#root");
 const onModel = ["Project", "Folder"];
+const dashboardEndpunkt = "/project";
+const href = "/share";
 
 export default function UserEditor() {
   const { id } = useParams(); //ProjektId
   const auth = useAuth();
   const socketContext = useSocket();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit } = useForm();
+  const navigate = useNavigate();
+  const location = useLocation();
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
   const heightTerminalClosed = "87vh";
@@ -41,6 +41,7 @@ export default function UserEditor() {
   const [parentId, setParentId] = useState("");
   const [isloadProject, setIsLoadProject] = useState(false);
   const [isCreateFile, setIsCreateFile] = useState(true);
+  const [selectedFileId, setSelectedFileId] = useState("");
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -48,29 +49,47 @@ export default function UserEditor() {
       e.returnValue = "";
     };
 
+    const handlePopstate = (e) => {
+      const href = window.location.href;
+      navigate(dashboardEndpunkt, { replace: true });
+      e.preventDefault();
+      const anwser = window.confirm(
+        "Möchten Sie die Seite wirklich verlassen?"
+      );
+      if (!anwser) {
+        window.history.pushState(null, null, href);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopstate);
+
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopstate);
     };
   }, []);
 
   useEffect(() => {
-    if (socketContext.shareState) loadProject(socketContext.project_id);
+    if (!socketContext.shareState && location.pathname.endsWith(href))
+      navigate(dashboardEndpunkt, { replace: true });
     else loadProject();
-  }, [isloadProject]);
+  }, [isloadProject, socketContext.shareState]);
 
   useEffect(() => {
     socketContext.on();
     socket.on("share_problem", (from) => {
       socketContext.setShareState(false);
       notierror(
-        `Es gab ein Problem bei der Verbindung mit${from}\nLaden Sie die Page erneut und versuchen es noch mal`
+        `Es gab ein Problem bei der Verbindung mit ${from}\n Laden Sie MÖGLICHERWEISE die Seite neu und versuchen es noch mal`
       );
     });
     socket.on("transfer_stop", () => {
       socketContext.setShareState(false);
       socketContext.setProjectId("");
+      if (location.pathname.endsWith(href))
+        navigate(dashboardEndpunkt, { replace: true });
     });
     socket.on("no_user", (from) => {
       notierror(`${from} nicht gefunden oder ist offline no-user`);
@@ -84,6 +103,7 @@ export default function UserEditor() {
       notierror(`${from} hat die Übertragung abgehlt bestätigt`);
     });
     socket.on("reload", (from) => {
+      console.log(`Reload, ${socketContext.shareState}`);
       notierror(
         `${from} hat seine Seite neu geladen. Übertragung  wurde gestoppt`
       );
@@ -92,57 +112,64 @@ export default function UserEditor() {
     });
 
     socket.on("transfer_confirmed", (from) => {
-      notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
-      socket.emit("send_first_code", auth.user.email, from, {
-        project_id: id,
-        code: editorRef.current.getValue(),
-        extension,
-      });
-      socketContext.setTo(from);
-      socketContext.setShareState(true);
+      try {
+        socket.emit("send_file_change", auth.user.email, from, {
+          file_id: selectedFileId,
+          code: editorRef.current.getValue(),
+          extension,
+        });
+        socketContext.setTo(from);
+        socketContext.setShareState(true);
+        notisuccess(`${from} hat bestätigt, Übertragen sollen jetzt starten`);
+      } catch (error) {
+        notierror(
+          "unerwartete Fehler. Seite lade und Verbindung noch mal versuchen"
+        );
+        socket.emit("stop_transfer", auth.user.email, from);
+      }
     });
     socket.on("receive_code", (from, data) => {
       socketContext.setTo(from);
       setCodeValue(data.code);
     });
-    socket.on("receive_first_code", (from, data) => {
-      setExtension(data.extension);
-      loadProject(data.project_id);
-      socketContext.setTo(from);
-      socketContext.setProjectId(data.project_id);
-      setCodeValue(data.code);
-    });
     socket.on("receive_file_change", (from, data) => {
       setExtension(data.extension);
+      setSelectedFileId(data.file_id);
       socketContext.setTo(from);
       setCodeValue(data.code);
       fileHighlight(data.file_id);
     });
-  }, []);
+  }, [socket]);
 
-  const loadProject = (fromId) => {
-    let projektId = id;
-    if (fromId === undefined && id === "share") return;
-    if (fromId) projektId = fromId;
-    axios
-      .get("project", {
-        params: {
-          id: projektId,
-        },
-      })
-      .then((response) => {
-        const tmp = response.data;
-        console.log(tmp);
-        SetProjectName(tmp.project.name);
-        setFiles(tmp.files);
-        setFolders(tmp.folders);
-        setCodeValue(tmp.files[0].content);
-        setExtension(tmp.files[0].extension);
-      })
-      .catch((error) => {
-        console.log(error);
-        notierror(`Fehler beim Abrufen der Projektdaten, Seite erneut laden`);
-      });
+  const loadProject = () => {
+    let projectId = id;
+    if (socketContext.project_id.trim().length !== 0)
+      projectId = socketContext.project_id;
+    console.log("stat", socketContext.shareState);
+    console.log("id", id);
+    console.log("For_ID:", socketContext.project_id);
+    console.log("Pro:", projectId);
+    if (projectId !== "share") {
+      axios
+        .get("project", {
+          params: {
+            id: projectId,
+          },
+        })
+        .then((response) => {
+          const tmp = response.data;
+          SetProjectName(tmp.project.name);
+          setFiles(tmp.files);
+          setFolders(tmp.folders);
+          setCodeValue(tmp.files[0].content);
+          setExtension(tmp.files[0].extension);
+          setSelectedFileId(tmp.files[0].id);
+        })
+        .catch((error) => {
+          console.log(error);
+          notierror(`Fehler beim Abrufen der Projektdaten, Seite neu laden`);
+        });
+    }
   };
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -151,10 +178,18 @@ export default function UserEditor() {
 
   const handleEditorDidChange = () => {
     setCodeValue(editorRef.current.getValue());
-    if (socketContext.shareState)
-      socket.emit("send_code", auth.user.email, socketContext.to, {
-        code: editorRef.current.getValue(),
-      });
+    if (socketContext.shareState) {
+      try {
+        socket.emit("send_code", auth.user.email, socketContext.to, {
+          code: editorRef.current.getValue(),
+        });
+      } catch (error) {
+        notierror(
+          "unerwartete Fehler. Seite lade und Verbindung noch mal versuchen"
+        );
+        socket.emit("stop_transfer", socketContext.to);
+      }
+    }
   };
 
   const addDark = () => {
@@ -187,9 +222,17 @@ export default function UserEditor() {
         setOutputs(res.data.output.split("\n"));
       })
       .catch((error) => {
-        console.error(error.response.data.error);
+        console.log(error);
         terminalRef.current.style.backgroundColor = "#702626";
-        setOutputs(error.response.data.error.stderr.split("\n"));
+        let msg = [];
+        if (error.code === "ERR_NETWORK") {
+          const errMsg = `${error.message}: bitte auf run code klicken`;
+          msg.push(errMsg);
+          notierror(errMsg);
+        } else {
+          msg = error.response.data.error.stderr.split("\n");
+        }
+        setOutputs(msg);
       })
       .finally(() => {
         openTerminal();
@@ -217,11 +260,15 @@ export default function UserEditor() {
       if (input === null) return;
 
       if (window.confirm(`Wir versuchen Sie nun zu verbinden mit: ${input}`)) {
-        socket.emit("request_transfer", auth.user.email, input);
+        socket.emit("request_transfer", auth.user.email, input, {
+          project_id: id,
+        });
       }
     } else {
-      socket.emit("stop_transfer", socketContext.to);
+      socket.emit("stop_transfer", auth.user.email, socketContext.to);
       socketContext.setShareState(false);
+      if (location.pathname.endsWith(href))
+        navigate(dashboardEndpunkt, { replace: true });
     }
   };
 
@@ -229,7 +276,8 @@ export default function UserEditor() {
     document.querySelectorAll("li.file-link").forEach((li) => {
       li.style.backgroundColor = "transparent";
     });
-    document.getElementById(id).style.backgroundColor = "#dddada";
+    const li = document.getElementById(id);
+    if (li != null) li.style.backgroundColor = "#dddada";
   };
 
   const handleClickFile = (id) => {
@@ -240,7 +288,6 @@ export default function UserEditor() {
         },
       })
       .then((response) => {
-        console.error(response);
         const file = response.data.file;
         setCodeValue(file.content);
         setExtension(file.extension);
@@ -254,7 +301,7 @@ export default function UserEditor() {
         }
       })
       .catch((error) => {
-        notierror(error.response.data.error.message);
+        notierror(`Fehler beim Abrufen der Datei, Seite bitte neu laden`);
         console.error(error);
       });
   };
@@ -314,8 +361,70 @@ export default function UserEditor() {
       setIsLoadProject(!isloadProject);
       notisuccess(`${name} erfolgreich erstellt`);
     } catch (error) {
-      notierror(error.response.data.error.message);
+      notierror(`Fehler beim Erstellen, Anfrage erneut senden`);
     }
+  };
+
+  const getType = (fileExtension) => {
+    let mime = undefined;
+    switch (fileExtension) {
+      case "c":
+        mime = "text/x-c";
+        break;
+      case "cpp":
+        mime = "text/x-c++";
+        break;
+      case "css":
+        mime = "text/css";
+        break;
+      case "html":
+        mime = "text/html";
+        break;
+      case "js":
+        mime = "application/javascript";
+        break;
+      case "php":
+        mime = "application/x-php";
+        break;
+      case "py":
+        mime = "text/x-python";
+        break;
+      case "txt":
+        mime = "text/plain";
+        break;
+      default:
+        throw "Ungültiger Dateityp";
+    }
+    return mime;
+  };
+
+  const downloadFile = (id) => {
+    axios
+      .get("file", {
+        params: {
+          id,
+        },
+      })
+      .then((response) => {
+        const file = response.data.file;
+        const type = getType(file.extension);
+        const blob = new Blob([file.content], { type });
+        const url = window.URL.createObjectURL(blob);
+
+        // Erstelle einen Link, um die Datei herunterzuladen
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.style.display = "none";
+        document.body.appendChild(a);
+
+        a.click(); // Klicke auf den Link, um die Datei herunterzuladen
+        window.URL.revokeObjectURL(url); // Entferne den Link nach dem Herunterladen
+      })
+      .catch((error) => {
+        notierror(`Fehler beim Herunterladen der Datei`);
+        console.error(error);
+      });
   };
 
   const loadFiles = (data) => {
@@ -328,18 +437,21 @@ export default function UserEditor() {
       >
         <ul className="file-bar">
           <li className="file-name truncate-text">
-            <a>{file.name}</a>
+            <span>{file.name}</span>
           </li>
           <li className="file-three-dot-button">
-            <a>
+            <span>
               <i className="material-icons">more_vert</i>
-            </a>
+            </span>
             <ul className="file drop-down">
               <li>
-                <a className="drop-down-button">delete</a>
+                <span className="drop-down-button">delete</span>
               </li>
               <li>
-                <a className="drop-down-button" onClick={openModal}>
+                <a
+                  className="drop-down-button"
+                  onClick={() => downloadFile(file.id)}
+                >
                   download
                 </a>
               </li>
@@ -414,16 +526,24 @@ export default function UserEditor() {
       <div className="editor-panel">
         <nav className="sidebar-menu-bar">
           <a onClick={runCode}>
-            <i className="material-icons icon">play_arrow</i>
+            <i className="material-icons icon" title="Kompilieren">
+              play_arrow
+            </i>
           </a>
           <a onClick={handleShare}>
-            <i ref={shareRef} className="material-icons icon">
+            <i
+              ref={shareRef}
+              className="material-icons icon"
+              title={socketContext.shareState ? "Stop Teilen" : "Teilen"}
+            >
               {socketContext.shareState ? "cancel_schedule_send" : "share"}
             </i>
           </a>
           {auth.isAuthenticated ? (
             <a onClick={auth.logout}>
-              <i className="material-icons icon">logout</i>
+              <i className="material-icons icon" title="logout">
+                logout
+              </i>
             </a>
           ) : null}
           <div className="mode" onClick={addDark}>
