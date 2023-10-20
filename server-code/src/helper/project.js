@@ -170,7 +170,11 @@ const getProjects = async (req, res) => {
         });
       }
       const projects = owner.projects.map((value) => {
-        return { id: value._id.toString(), name: value.name };
+        return {
+          id: value._id.toString(),
+          name: value.name,
+          lastModified: value.lastModified,
+        };
       });
       return res.json({
         projects,

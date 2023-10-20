@@ -2,9 +2,12 @@ import "./styles/register.css";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { notierror } from "../../toast";
+import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
 import axios from "../../api/axios";
+
+const loginEndpunkt = "/login";
+const serverRegisterEndpunkt = "user/register";
 
 export default function Register() {
   const {
@@ -19,20 +22,24 @@ export default function Register() {
   const onSubmit = async (data) => {
     try {
       const { firstname, lastname, email, password } = data;
-      await axios.post("user/register", {
+      await axios.post(serverRegisterEndpunkt, {
         firstname,
         lastname,
         email,
         password,
       });
       auth.setUser({ email });
-      navigate("/login");
+      navigate(loginEndpunkt);
+      notisuccess(`Willkomen: ${firstname} ${lastname}`);
     } catch (error) {
       if (error.response?.status === 409)
         notierror(error.response.data.error.message);
       else if (!error?.response)
-        notierror("Fehler bei der Registrierung, Keine Response vom Server");
-      else notierror("Fehler bei der Registrierung,");
+        notierror("Keine Antwort vom Server. Bitte später erneut versuchen");
+      else
+        notierror(
+          "unerwarter Fehler bei der Registrierung. Bitte später erneut versuchen"
+        );
       console.error("Fehler bei der Registrierung:", error);
     }
   };

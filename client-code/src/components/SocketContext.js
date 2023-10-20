@@ -14,20 +14,19 @@ export const SocketProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const on = () => {
-    if (!auth.isAuthenticated) return;
+    if (!auth.isAuthenticated || shareState) return;
     socket.emit("set_username", auth.user.email);
-    socket.on("transfer_request", (from) => {
+    socket.on("transfer_request", (from, data) => {
       if (
         window.confirm(
           `${from} möchte eine Übertragung starten. Möchtest Sie akzeptieren?`
         )
       ) {
-        setTo(from);
-        setShareState(true);
-
-        navigate(redirectPath, { replace: true });
-
         socket.emit("confirm_transfer", from, auth.user.email);
+        setTo(from);
+        setProjectId(data.project_id);
+        setShareState(true);
+        navigate(redirectPath, { replace: true });
       } else {
         socket.emit("deny_transfer", from, auth.user.email);
       }

@@ -43,13 +43,13 @@ const login = async (req, res) => {
     if (!user)
       return res
         .status(400)
-        .json({ error: { message: "Invalid credentials" } });
+        .json({ error: { message: "Invalide credentials" } });
 
     const match = passwordCompare(password, user.hash);
     if (!match) {
       return res
         .status(500)
-        .json({ error: { message: "Email or password is invalid" } });
+        .json({ error: { message: "Email oder password ist invalid" } });
     }
 
     const accessToken = jwt.sign({ email }, "token", { expiresIn: "2h" });

@@ -129,7 +129,6 @@ const runCode = async (req, res) => {
 
     res.json({ output });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error });
   }
 };

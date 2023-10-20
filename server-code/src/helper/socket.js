@@ -7,10 +7,27 @@ const socket = (server) => {
       methods: ["GET", "POST"],
     },
   });
+  /**
+   *
+   * @param {string} from
+   * @param {string} to
+   * @returns - true
+   */
+  const checkConfirmedRequests = (from, to) => {
+    let result = false;
+    for (const [_from, _to] of Object.entries(confirmedRequests)) {
+      if ((from === _from && to === _to) || (from === _to && to === _from)) {
+        result = true;
+        break;
+      }
+    }
+    return result;
+  };
 
   const confirmedRequests = {};
   const userConnections = {};
   const pendingRequests = {};
+  const requestEvents = {};
 
   io.on("connection", (socket) => {
     socket.on("set_username", (username) => {
@@ -18,7 +35,9 @@ const socket = (server) => {
       console.log(userConnections);
     });
 
-    socket.on("request_transfer", (from, to) => {
+    socket.on("request_transfer", (from, to, data) => {
+      if (requestEvents[to]) return;
+
       const toSocketId = userConnections[to];
       const fromSocketId = userConnections[from];
 
@@ -28,22 +47,22 @@ const socket = (server) => {
           return;
         }
         pendingRequests[to] = from;
-        io.to(toSocketId).emit("transfer_request", from);
-        return;
+        io.to(toSocketId).emit("transfer_request", from, data);
+        requestEvents[to] = true;
       } else {
         io.to(fromSocketId).emit("no_user", to);
-        return;
       }
     });
 
     socket.on("confirm_transfer", (from, to) => {
       if (pendingRequests[to] === from) {
         const fromSocketId = userConnections[from];
-
-        confirmedRequests[from] = to;
-        delete pendingRequests[to];
-
+        confirmedRequests[to] = from;
         io.to(fromSocketId).emit("transfer_confirmed", to);
+      } else if (pendingRequests[from] === to) {
+        const toSocketId = userConnections[to];
+        confirmedRequests[from] = to;
+        io.to(toSocketId).emit("transfer_confirmed", from);
       } else {
         const toSocketId = userConnections[to];
         const fromSocketId = userConnections[from];
@@ -60,23 +79,24 @@ const socket = (server) => {
     });
 
     socket.on("send_code", (from, to, data) => {
-      const toSocketId = userConnections[to];
-      io.to(toSocketId).emit("receive_code", from, data);
-    });
-
-    socket.on("send_first_code", (from, to, data) => {
-      const toSocketId = userConnections[to];
-      io.to(toSocketId).emit("receive_first_code", from, data);
+      if (checkConfirmedRequests(from, to)) {
+        const toSocketId = userConnections[to];
+        io.to(toSocketId).emit("receive_code", from, data);
+      }
     });
 
     socket.on("send_file_change", (from, to, data) => {
-      const toSocketId = userConnections[to];
-      io.to(toSocketId).emit("receive_file_change", from, data);
+      if (checkConfirmedRequests(from, to)) {
+        const toSocketId = userConnections[to];
+        io.to(toSocketId).emit("receive_file_change", from, data);
+      }
     });
 
-    socket.on("stop_transfer", (to) => {
-      const toSocketId = userConnections[to];
-      io.to(toSocketId).emit("transfer_stop");
+    socket.on("stop_transfer", (from, to) => {
+      if (checkConfirmedRequests(from, to)) {
+        const toSocketId = userConnections[to];
+        io.to(toSocketId).emit("transfer_stop");
+      }
     });
 
     socket.on("disconnect", () => {
@@ -86,12 +106,17 @@ const socket = (server) => {
           for (const [from, to] of Object.entries(confirmedRequests)) {
             if (from === username) {
               const id = userConnections[to];
+              console.log("Diconnect", username, to);
               io.to(id).emit("reload", username);
+              delete confirmedRequests[from];
               break;
             }
             if (to === username) {
               const id = userConnections[from];
+              console.log("Diconnect", username, from);
+
               io.to(id).emit("reload", username);
+              delete confirmedRequests[from];
               break;
             }
           }

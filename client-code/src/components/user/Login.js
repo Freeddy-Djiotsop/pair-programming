@@ -5,6 +5,8 @@ import { notierror, notisuccess } from "../../toast";
 import { useAuth } from "../Auth";
 import axios from "../../api/axios";
 
+const serverLoginEndpunkt = "user/login";
+
 export default function Login() {
   const {
     register,
@@ -17,23 +19,27 @@ export default function Login() {
   const auth = useAuth();
 
   const redirectPath = location.state?.path || "/project";
+  const serverLoginEndpunkt = "user/login";
 
   const onSubmit = async (data) => {
     try {
       const { email, password } = data;
-      const response = await axios.post("user/login", { email, password });
+      const response = await axios.post(serverLoginEndpunkt, {
+        email,
+        password,
+      });
       const { user, token } = response.data;
 
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
       auth.login();
-
       navigate(redirectPath, { replace: true });
+      notisuccess(`Hallo: ${user.firstname} ${user.lastname}`);
     } catch (error) {
       const message = error.response
         ? error.response.data.error.message
-        : error.message;
+        : "Keine Antwort vom Server. Bitte später erneut versuchen";
       notierror(message);
       console.error("Fehler bei der Login:", error);
     }
