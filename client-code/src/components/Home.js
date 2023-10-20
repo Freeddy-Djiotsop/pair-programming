@@ -38,14 +38,14 @@ export default function Home() {
             gemeinsam Fortschritte erzielen könnt.
           </p>
         </div>
-        {/* <div className="feature-card">
-            <h3>Dateiverwaltung</h3>
-            <p>
-              Organisiere deine Projekte mühelos mit einer benutzerfreundlichen
-              Dateiverwaltung. Erstelle Ordner, Dateien und Unterprojekte, um
-              deine Arbeit übersichtlich zu strukturieren.
-            </p>
-          </div> */}
+        <div className="feature-card">
+          <h3>Dateiverwaltung</h3>
+          <p>
+            Organisiere deine Projekte mühelos mit einer benutzerfreundlichen
+            Dateiverwaltung. Erstelle Ordner, Dateien und Unterprojekte, um
+            deine Arbeit übersichtlich zu strukturieren.
+          </p>
+        </div>
         <div className="feature-card">
           <h3>Syntaxhervorhebung</h3>
           <p>
