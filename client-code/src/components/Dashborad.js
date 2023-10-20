@@ -85,6 +85,30 @@ export default function Dashboard() {
     setIsModalOpen(false);
   };
 
+  const timeSinceLastModified = (lastModified) => {
+    const lastModifiedDate = new Date(lastModified);
+    const currentDate = new Date();
+    const timeDifference = currentDate - lastModifiedDate;
+
+    const secondsDifference = Math.floor(timeDifference / 1000);
+    const minutesDifference = Math.floor(secondsDifference / 60);
+    const hoursDifference = Math.floor(minutesDifference / 60);
+    const daysDifference = Math.floor(hoursDifference / 24);
+    const mountsDifference = Math.floor(daysDifference / 30);
+
+    if (mountsDifference > 0) {
+      return `vor ${mountsDifference} Monat(en)`;
+    } else if (daysDifference > 0) {
+      return `vor ${daysDifference} Tag(en)`;
+    } else if (hoursDifference > 0) {
+      return `vor ${hoursDifference} Stunde(n)`;
+    } else if (minutesDifference > 0) {
+      return `vor ${minutesDifference} Minute(n)`;
+    } else {
+      return `vor ${secondsDifference} Sekunde(n)`;
+    }
+  };
+
   return (
     <>
       <div className="dashboard">
@@ -94,14 +118,34 @@ export default function Dashboard() {
           </a>
         </div>
         <div className="dashboard-center-panel">
-          <h1>Dashboard</h1>
-          <ul>
-            {projects.map((project) => (
-              <li key={project.id}>
-                <a onClick={() => handleClick(project.id)}>{project.name}</a>
+          <h1>{projects.length === 0 ? "Keine" : "Alle"} Projekte</h1>
+          {projects.length === 0 ? null : (
+            <ul className="dashboard-projekts">
+              <li className="projekt-header">
+                <div className="projekt-header-content">
+                  <a className="projekt-header-name">Name</a>
+                  <span className="projekt-header-lastmodified">
+                    Zuletzt bearbeitet
+                  </span>
+                </div>
               </li>
-            ))}
-          </ul>
+              {projects.map((project) => (
+                <li className="projekt-link" key={project.id}>
+                  <div className="projekt-link-content">
+                    <a
+                      className="projekt-link-name"
+                      onClick={() => handleClick(project.id)}
+                    >
+                      {project.name}
+                    </a>
+                    <span className="projekt-link-lastmodified">
+                      {timeSinceLastModified(project.lastModified)}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
       <Modal
