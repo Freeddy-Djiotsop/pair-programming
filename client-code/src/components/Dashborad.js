@@ -8,12 +8,13 @@ import { languages } from "../language";
 import { notierror, notisuccess } from "../toast";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "./SocketContext";
+import { socket } from "../api/socket";
 
 Modal.setAppElement("#root");
 
 export default function Dashboard() {
   const auth = useAuth();
-  const socket = useSocket();
+  const socketContext = useSocket();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const {
@@ -24,7 +25,14 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadProject, setLoadProject] = useState(false);
 
-  useEffect(() => socket.on(), []);
+  useEffect(() => {
+    if (socketContext.shareState) {
+      socketContext.setShareState(false);
+      socketContext.setProjectId("");
+      socket.emit("stop_transfer", socketContext.to);
+    }
+    socketContext.on();
+  }, []);
 
   useEffect(() => {
     axios
@@ -34,15 +42,17 @@ export default function Dashboard() {
         },
       })
       .then((response) => {
-        notisuccess(response.data.message);
         if (Array.isArray(response.data.projects))
           setProjects(response.data.projects);
       })
       .catch((error) => {
         console.log(error);
-        let msg = "Seite bitte neu laden";
-        if (!error.response) msg = error.response.data.error.message;
-        notierror(`Fehler beim Abrufen der Projektdaten: ${msg}`);
+        let msg = "";
+        if (error.code === "ERR_NETWORK")
+          msg = `${error.message}: Seite bitte neu laden`;
+        else
+          msg = `Fehler beim Abrufen der Projektdaten: ${error.response.data.error.message}`;
+        notierror(msg);
       });
   }, [loadProject]);
 

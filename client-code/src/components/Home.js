@@ -3,12 +3,20 @@ import "./styles/home.css";
 import { useAuth } from "./Auth";
 import { useSocket } from "./SocketContext";
 import { useEffect } from "react";
+import { socket } from "../api/socket";
 
 export default function Home() {
   const auth = useAuth();
-  const socket = useSocket();
+  const socketContext = useSocket();
 
-  useEffect(() => socket.on(), []);
+  useEffect(() => {
+    if (socketContext.shareState) {
+      socketContext.setShareState(false);
+      socketContext.setProjectId("");
+      socket.emit("stop_transfer", socketContext.to);
+    }
+    socketContext.on();
+  }, []);
 
   return (
     <div className="description-container">
@@ -46,15 +54,6 @@ export default function Home() {
             optimieren und Fehler leichter zu erkennen.
           </p>
         </div>
-        {/* <div className="feature-card">
-            <h3>Chat und Kommentare</h3>
-            <p>
-              Diskutiere Ideen, stelle Fragen oder gebe Feedback direkt in der
-              Anwendung. Unser integrierter Chat ermöglicht es dir, in Echtzeit
-              zu kommunizieren, ohne die Bearbeitungsumgebung verlassen zu
-              müssen.
-            </p>
-          </div> */}
         <div className="feature-card">
           <h3>Sicherheit</h3>
           <p>
