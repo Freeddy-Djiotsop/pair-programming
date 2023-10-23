@@ -1,0 +1,22 @@
+.gast-selection {
+  margin-top: 30px;
+}
+
+.gast-selection label {
+  width: 120%;
+  background-color: var(--body-color);
+  color: var(--text-color);
+  padding: 0 10px;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.gast-selection select {
+  width: 100px;
+  margin-left: 10px;
+  margin-top: 10px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 20px;
+}
