@@ -85,6 +85,7 @@ export default function UserEditor() {
     socket.on("share_problem", (from) => {
       socketContext.setShareState(false);
       socket.emit("stop_transfer", auth.user.email, from);
+      socketContext.setProjectId("");
       notierror(
         `Es gab ein Problem bei der Verbindung mit ${from}\n Laden Sie MÖGLICHERWEISE die Seite neu und versuchen es noch mal`
       );
