@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "../api/axios";
 import "./styles/gastEditor.css";
-import { useAuth } from "./Auth";
 import { languages } from "../language";
 import { notierror } from "../toast";
 import { v4 as uuid } from "uuid";
@@ -16,7 +15,6 @@ export default function GastEditor() {
   const file_id = uuid();
   const modeRef = useRef(null);
   const terminalRef = useRef(null);
-  const selectRef = useRef(null);
   const editorRef = useRef(null);
   const [outputs, setOutputs] = useState([]);
   const [height, setHeight] = useState(heightTerminalClosed);

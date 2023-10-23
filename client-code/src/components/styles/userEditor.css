@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: space-evenly;
   top: 50px;
-  width: 3.5%;
+  width: 2%;
   height: 91vh;
   background: var(--body-color);
   transition: var(--tran-05);
@@ -33,6 +33,7 @@
 
 .sidebar-menu-bar div.mode {
   padding-top: 5px;
+  margin-left: 2%;
   width: 45px;
   background-color: var(--sidebar-color);
   text-align: center;
@@ -63,7 +64,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   right: 0%;
   flex-direction: column;
   background: var(--sidebar-color);
-  width: 16%;
+  width: 17.7%;
   height: 100%;
 }
 
@@ -240,7 +241,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
 .terminal-bar {
   display: flex;
   flex-direction: row-reverse;
-  width: 85%;
+  width: 83%;
   background-color: var(--body-color);
 }
 
