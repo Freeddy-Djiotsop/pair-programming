@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: space-evenly;
   top: 50px;
-  width: 50px;
+  width: 3.5%;
   height: 91vh;
   background: var(--body-color);
   transition: var(--tran-05);
@@ -63,8 +63,8 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   right: 0%;
   flex-direction: column;
   background: var(--sidebar-color);
-  width: 198px;
-  height: 91vh;
+  width: 16%;
+  height: 100%;
 }
 
 .editor-right-panel-bar {
