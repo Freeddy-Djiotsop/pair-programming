@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
   top: 50px;
   width: 50px;
   height: 91vh;
@@ -24,6 +24,11 @@
   font-size: 20px;
   color: var(--text-color);
   transition: var(--tran-03);
+}
+
+.mode {
+  position: fixed;
+  bottom: 1%;
 }
 
 .sidebar-menu-bar div.mode {
@@ -57,8 +62,8 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   top: 9.2%;
   right: 0%;
   flex-direction: column;
-  background: #fff;
-  width: 206px;
+  background: var(--sidebar-color);
+  width: 198px;
   height: 91vh;
 }
 
@@ -67,7 +72,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   width: 100%;
   height: 30px;
   padding-top: 3px;
-  margin-bottom: 10px;
+  padding-bottom: 10px;
 }
 
 .editor-right-panel-bar .bar-content {
@@ -81,6 +86,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
 }
 .project-name {
   width: 180px;
+  color: var(--text-color);
   font-size: 20px;
   margin-top: -5px;
   padding-left: 2px;
@@ -91,10 +97,6 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
 .three-dot {
   font-size: 20px;
 }
-
-/* .three-dot-button {
-  background-color: #000;
-} */
 
 .drop-down {
   position: absolute;
@@ -124,7 +126,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 25px;
+  height: fit-content;
 }
 .file-bar,
 .folder-bar {
@@ -134,6 +136,9 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
 .file-name,
 .folder-name {
   width: 100%;
+  padding: 0 10px;
+  margin: 10px 0;
+  color: var(--text-color);
 }
 .file-bar:hover {
   background-color: #b3b1b1;
@@ -146,13 +151,17 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   color: #fff;
 }
 
-.file.drop-down,
-.folder.drop-down {
+.file.drop-down {
   width: 110px;
   top: -10px;
-  color: #000;
+  color: var(--text-color);
   margin-top: 2.5rem;
   margin-left: 0.5rem;
+}
+
+.file.drop-down,
+.folder.drop-down {
+  color: var(--text-color);
 }
 
 .project-files {
@@ -170,7 +179,7 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
 
 /*---Folder---*/
 .folder.drop-down {
-  top: 10px;
+  top: auto;
   width: 120px;
 }
 
@@ -182,16 +191,16 @@ body.dark .sidebar-menu-bar div.mode a.dark_light:hover {
   border-bottom: 2px solid var(--body-color);
   display: none;
 }
-
+.folder-link:first-child {
+  margin-top: 2px;
+}
 .folder-link {
-  background-color: var(--body-color);
-  margin-bottom: 0.5rem;
+  margin-bottom: 2px;
 }
 
 .folder-link.open {
-  background-color: #fff;
+  background-color: var(--toggle-color);
   height: fit-content;
-  margin-bottom: 20px;
 }
 
 .folder-link.open .folder-content {
