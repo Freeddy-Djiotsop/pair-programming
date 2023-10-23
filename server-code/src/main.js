@@ -6,7 +6,7 @@ const { socket } = require("./helper/socket");
 const { runCode } = require("./compiler");
 const { login, register } = require("./helper/user");
 const { getProjects, createProject } = require("./helper/project");
-const { getFile, createFile } = require("./helper/file");
+const { getFile, createFile, basic } = require("./helper/file");
 const { getFolder, createFolder } = require("./helper/folder");
 
 const app = express();
@@ -22,6 +22,7 @@ app.get("", (req, res) => {
 });
 app.post("/user/register", register);
 app.post("/user/login", login);
+app.get("/gast/basic", basic);
 app.post("/run", runCode);
 
 app.get("/project", getProjects);
