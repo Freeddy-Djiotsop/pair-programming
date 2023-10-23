@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const { File } = require("./mongodb");
 
 const socket = (server) => {
   const io = new Server(server, {
@@ -33,6 +34,17 @@ const socket = (server) => {
     socket.on("set_username", (username) => {
       userConnections[username] = socket.id;
       console.log(userConnections);
+    });
+
+    socket.on("save_code", async (data) => {
+      const file = await File.findById(data.file_id);
+
+      if (!file) {
+        socket.emit("error_save_code");
+        return;
+      }
+      file.content = data.code;
+      await file.save();
     });
 
     socket.on("request_transfer", (from, to, data) => {
@@ -95,7 +107,7 @@ const socket = (server) => {
     socket.on("stop_transfer", (from, to) => {
       if (checkConfirmedRequests(from, to)) {
         const toSocketId = userConnections[to];
-        io.to(toSocketId).emit("transfer_stop");
+        io.to(toSocketId).emit("transfer_stop", from);
       }
     });
 
@@ -124,6 +136,7 @@ const socket = (server) => {
           break;
         }
       }
+      console.log("Angemeldete Benutzer für das Teilen");
       console.log(userConnections);
     });
   });

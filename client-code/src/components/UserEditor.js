@@ -79,6 +79,9 @@ export default function UserEditor() {
 
   useEffect(() => {
     socketContext.on();
+    socket.on("error_save_code", () => {
+      notierror(`Fehler beim Speichern der Datei in der Datenbank`);
+    });
     socket.on("share_problem", (from) => {
       socketContext.setShareState(false);
       notierror(
@@ -179,6 +182,11 @@ export default function UserEditor() {
 
   const handleEditorDidChange = () => {
     setCodeValue(editorRef.current.getValue());
+    if (!location.pathname.endsWith(href))
+      socket.emit("save_code", {
+        file_id: selectedFileId,
+        code: editorRef.current.getValue(),
+      });
     if (socketContext.shareState) {
       try {
         socket.emit("send_code", auth.user.email, socketContext.to, {
