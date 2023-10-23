@@ -20,7 +20,6 @@ const generateSourceCode = async (format, content) => {
 const nodejsCompiler = () => {
   return new Promise((resolve, reject) => {
     exec(`node ${filePath}`, (error, stdout, stderr) => {
-      deleteSourceCode(filePath);
       error && reject({ error, stderr });
       stderr && reject(stderr);
       resolve(stdout);
@@ -31,7 +30,6 @@ const nodejsCompiler = () => {
 const pyCompiler = () => {
   return new Promise((resolve, reject) => {
     exec(`python ${filePath}`, (error, stdout, stderr) => {
-      deleteSourceCode(filePath);
       error && reject({ error, stderr });
       stderr && reject(stderr);
       resolve(stdout);
@@ -42,7 +40,6 @@ const pyCompiler = () => {
 const phpCompiler = () => {
   return new Promise((resolve, reject) => {
     exec(`php ${filePath}`, (error, stdout, stderr) => {
-      deleteSourceCode(filePath);
       error && reject({ error, stderr });
       stderr && reject(stderr);
       resolve(stdout);
@@ -62,7 +59,6 @@ const cppCompiler = () => {
       `g++ -Wall ${filePath} -o ${outPath} && cd ${outputPath} && ${executeCode}`,
       (error, stdout, stderr) => {
         deleteSourceCode(outPath);
-        deleteSourceCode(filePath);
         error && reject({ error, stderr });
         stderr && reject(stderr);
         resolve(stdout);
@@ -83,7 +79,6 @@ const cCompiler = () => {
       `gcc -Wall ${filePath} -o ${outPath} && cd ${outputPath} && ${executeCode}`,
       (error, stdout, stderr) => {
         deleteSourceCode(outPath);
-        deleteSourceCode(filePath);
         error && reject({ error, stderr });
         stderr && reject(stderr);
         resolve(stdout);
@@ -126,9 +121,10 @@ const runCode = async (req, res) => {
         output = await phpCompiler();
         break;
     }
-
+    deleteSourceCode(filePath);
     res.json({ output });
   } catch (error) {
+    deleteSourceCode(filePath);
     res.status(500).json({ error });
   }
 };
