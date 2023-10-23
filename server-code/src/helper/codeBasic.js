@@ -101,7 +101,7 @@ $res = 1;
 
 for ($i = 1; $i <= 10; $i++) {
   $res *= $i;
-  echo "Fakultät von $i ist $res\n";
+  echo "Fakultät von $i ist $res\\n";
 }
 `;
 

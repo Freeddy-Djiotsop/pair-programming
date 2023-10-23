@@ -34,11 +34,11 @@ const createFile = async (req, res) => {
   try {
     if (model === onModel[0]) parent = await Project.findById(parentId);
     else if (model === onModel[1]) parent = await Folder.findById(parentId);
-    else throw `unknown onModel: ${model}`;
+    else throw `undefiniertes Model: ${model}`;
 
     console.log(parentId, model);
     if (!parent) {
-      throw "File create, unkown error";
+      throw "Unerwarter Fehler beim File-Create";
     }
     const codeBasic = await CodeBasic.findOne({
       extension,
@@ -78,4 +78,21 @@ const createFile = async (req, res) => {
   }
 };
 
-module.exports = { getFile, createFile };
+const basic = async (req, res) => {
+  const { extension } = req.query;
+
+  try {
+    const codeBasic = await CodeBasic.findOne({
+      extension,
+    });
+    return res.json({
+      code: codeBasic.content,
+      message: `basic gefunden`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: { message: error } });
+  }
+};
+
+module.exports = { getFile, createFile, basic };

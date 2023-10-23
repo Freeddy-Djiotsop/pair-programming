@@ -85,9 +85,10 @@ export default function UserEditor() {
         `Es gab ein Problem bei der Verbindung mit ${from}\n Laden Sie MÖGLICHERWEISE die Seite neu und versuchen es noch mal`
       );
     });
-    socket.on("transfer_stop", () => {
+    socket.on("transfer_stop", (from) => {
       socketContext.setShareState(false);
       socketContext.setProjectId("");
+      notierror(`${from} hat die Übertragung beendet`);
       if (location.pathname.endsWith(href))
         navigate(dashboardEndpunkt, { replace: true });
     });
@@ -277,7 +278,7 @@ export default function UserEditor() {
       li.style.backgroundColor = "transparent";
     });
     const li = document.getElementById(id);
-    if (li != null) li.style.backgroundColor = "#dddada";
+    if (li != null) li.style.backgroundColor = "var(--toggle-color)";
   };
 
   const handleClickFile = (id) => {
@@ -310,13 +311,15 @@ export default function UserEditor() {
     document.querySelectorAll("li.folder-link").forEach((li) => {
       li.querySelector("a.folder-expanded i.material-icons").innerHTML =
         "expand_more";
-      li.querySelector("ul.folder-bar").style.backgroundColor = "#e4e9f7";
+      li.querySelector("ul.folder-bar").style.backgroundColor =
+        "var(--body-color)";
     });
     const liTag = document.getElementById(id);
 
     const state = liTag.classList.toggle("open");
     if (state) {
-      liTag.querySelector("ul.folder-bar").style.backgroundColor = "#cad6f7";
+      liTag.querySelector("ul.folder-bar").style.backgroundColor =
+        "var(--sidebar-color)";
       liTag.querySelector("a.folder-expanded i.material-icons").innerHTML =
         "expand_less";
     }
@@ -411,15 +414,15 @@ export default function UserEditor() {
         const blob = new Blob([file.content], { type });
         const url = window.URL.createObjectURL(blob);
 
-        // Erstelle einen Link, um die Datei herunterzuladen
+        // Link für das Herunterzuladen erstellen
         const a = document.createElement("a");
         a.href = url;
         a.download = file.name;
         a.style.display = "none";
         document.body.appendChild(a);
 
-        a.click(); // Klicke auf den Link, um die Datei herunterzuladen
-        window.URL.revokeObjectURL(url); // Entferne den Link nach dem Herunterladen
+        a.click(); // Datei herunterzuladen
+        window.URL.revokeObjectURL(url); // Link Entfernen
       })
       .catch((error) => {
         notierror(`Fehler beim Herunterladen der Datei`);

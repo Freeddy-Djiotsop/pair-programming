@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }) => {
     socket.on("transfer_request", (from, data) => {
       if (
         window.confirm(
-          `${from} möchte eine Übertragung starten. Möchtest Sie akzeptieren?`
+          `${from} möchte eine Übertragung starten. Möchten Sie akzeptieren?`
         )
       ) {
         socket.emit("confirm_transfer", from, auth.user.email);

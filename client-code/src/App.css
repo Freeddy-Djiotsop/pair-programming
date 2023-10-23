@@ -12,7 +12,7 @@
   --primary-color: #e4e9f7;
   --primary-color-light: #f6f5ff;
   --toggle-color: #ddd;
-  --text-color: #707070;
+  --text-color: #000;
 
   --menu-bar-color: #111e53;
   --menu-bar-color-light: #2e3d79;
@@ -40,8 +40,8 @@ body.dark {
   --sidebar-color: #242526;
   --primary-color: #3a3b3c;
   --primary-color-light: #3a3b3c;
-  --toggle-color: #fff;
-  --text-color: #ccc;
+  --toggle-color: #18191a;
+  --text-color: #fff;
 }
 
 body::-webkit-scrollbar {
@@ -76,4 +76,5 @@ div.feature-card {
 li {
   list-style: none;
   cursor: pointer;
+  color: var(--text-color);
 }
