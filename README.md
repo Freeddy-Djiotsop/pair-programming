@@ -18,7 +18,7 @@ Der Client wird zahlreiche Features beinhalten, darunter einen Code-Editor mit S
 
 MongoDB läuft default in mongodb://127.0.0.1:27017
 
-Falls MongoDB konfiguriert wurde, dann diese [Zeile](https://github.com/Freeddy-Djiotsop/pair-programming/blob/42fb894c13b2f33f9e276118530461d55ffc9b93/server-code/src/helper/mongodb.js#L3) lokal in Quellecode ändern
+Falls MongoDB konfiguriert wurde, dann diese [Zeile](https://github.com/Freeddy-Djiotsop/pair-programming/blob/develop/server-code/src/helper/mongodb.js#L3) lokal in Quellecode ändern
 
 ## Server starten
 
