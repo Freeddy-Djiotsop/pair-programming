@@ -107,7 +107,6 @@ export default function UserEditor() {
       notierror(`${from} hat die Übertragung abgehlt bestätigt`);
     });
     socket.on("reload", (from) => {
-      console.log(`Reload, ${socketContext.shareState}`);
       notierror(
         `${from} hat seine Seite neu geladen. Übertragung  wurde gestoppt`
       );
@@ -147,12 +146,11 @@ export default function UserEditor() {
 
   const loadProject = () => {
     let projectId = id;
-    if (socketContext.project_id.trim().length !== 0)
+    if (
+      location.pathname.endsWith(href) &&
+      socketContext.project_id.trim().length !== 0
+    )
       projectId = socketContext.project_id;
-    console.log("stat", socketContext.shareState);
-    console.log("id", id);
-    console.log("For_ID:", socketContext.project_id);
-    console.log("Pro:", projectId);
     if (projectId !== "share") {
       axios
         .get("project", {
@@ -170,7 +168,7 @@ export default function UserEditor() {
           setSelectedFileId(tmp.files[0].id);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
           notierror(`Fehler beim Abrufen der Projektdaten, Seite neu laden`);
         });
     }
@@ -231,7 +229,6 @@ export default function UserEditor() {
         setOutputs(res.data.output.split("\n"));
       })
       .catch((error) => {
-        console.log(error);
         terminalRef.current.style.backgroundColor = "#702626";
         let msg = [];
         if (error.code === "ERR_NETWORK") {
@@ -242,6 +239,7 @@ export default function UserEditor() {
           msg = error.response.data.error.stderr.split("\n");
         }
         setOutputs(msg);
+        console.error(error);
       })
       .finally(() => {
         openTerminal();
@@ -276,6 +274,7 @@ export default function UserEditor() {
     } else {
       socket.emit("stop_transfer", auth.user.email, socketContext.to);
       socketContext.setShareState(false);
+      socketContext.setProjectId("");
       if (location.pathname.endsWith(href))
         navigate(dashboardEndpunkt, { replace: true });
     }

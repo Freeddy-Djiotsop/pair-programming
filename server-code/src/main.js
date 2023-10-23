@@ -37,5 +37,5 @@ app.post("/folder", createFolder);
 socket(server);
 
 server.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+  console.log(`Server is listening on port ${port}`);
 });

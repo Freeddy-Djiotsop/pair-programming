@@ -4,8 +4,12 @@ const db = "mongodb://127.0.0.1:27017/ppa";
 
 mongoose
   .connect(db)
-  .then(() => console.log("DB ist Connect"))
-  .catch((err) => console.error(err));
+  .then(() => console.log("Server ist verbunden mit Datenbank"))
+  .catch((error) => {
+    console.log("Server ist NICHT verbunden mit Datenbank");
+    console.error(error);
+    throw error;
+  });
 
 // Schema für Benutzer
 const userSchema = new mongoose.Schema({

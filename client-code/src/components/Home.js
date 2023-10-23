@@ -13,7 +13,7 @@ export default function Home() {
     if (socketContext.shareState) {
       socketContext.setShareState(false);
       socketContext.setProjectId("");
-      socket.emit("stop_transfer", socketContext.to);
+      socket.emit("stop_transfer", auth.user.email, socketContext.to);
     }
     socketContext.on();
   }, []);

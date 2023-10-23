@@ -29,7 +29,7 @@ export default function Dashboard() {
     if (socketContext.shareState) {
       socketContext.setShareState(false);
       socketContext.setProjectId("");
-      socket.emit("stop_transfer", socketContext.to);
+      socket.emit("stop_transfer", auth.user.email, socketContext.to);
     }
     socketContext.on();
   }, []);
@@ -46,13 +46,13 @@ export default function Dashboard() {
           setProjects(response.data.projects);
       })
       .catch((error) => {
-        console.log(error);
         let msg = "";
         if (error.code === "ERR_NETWORK")
           msg = `${error.message}: Seite bitte neu laden`;
         else
           msg = `Fehler beim Abrufen der Projektdaten: ${error.response.data.error.message}`;
         notierror(msg);
+        console.error(error);
       });
   }, [loadProject]);
 

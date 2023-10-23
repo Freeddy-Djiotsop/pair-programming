@@ -19,6 +19,7 @@ const socket = (server) => {
     for (const [_from, _to] of Object.entries(confirmedRequests)) {
       if ((from === _from && to === _to) || (from === _to && to === _from)) {
         result = true;
+        delete confirmedRequests[_from];
         break;
       }
     }
@@ -28,11 +29,11 @@ const socket = (server) => {
   const confirmedRequests = {};
   const userConnections = {};
   const pendingRequests = {};
-  const requestEvents = {};
 
   io.on("connection", (socket) => {
     socket.on("set_username", (username) => {
       userConnections[username] = socket.id;
+      console.log("Liste aller angemeldeten Benutzer für das Teilen:");
       console.log(userConnections);
     });
 
@@ -48,8 +49,6 @@ const socket = (server) => {
     });
 
     socket.on("request_transfer", (from, to, data) => {
-      if (requestEvents[to]) return;
-
       const toSocketId = userConnections[to];
       const fromSocketId = userConnections[from];
 
@@ -60,7 +59,6 @@ const socket = (server) => {
         }
         pendingRequests[to] = from;
         io.to(toSocketId).emit("transfer_request", from, data);
-        requestEvents[to] = true;
       } else {
         io.to(fromSocketId).emit("no_user", to);
       }
@@ -109,6 +107,7 @@ const socket = (server) => {
         const toSocketId = userConnections[to];
         io.to(toSocketId).emit("transfer_stop", from);
       }
+      console.log(confirmedRequests);
     });
 
     socket.on("disconnect", () => {
@@ -136,8 +135,6 @@ const socket = (server) => {
           break;
         }
       }
-      console.log("Angemeldete Benutzer für das Teilen");
-      console.log(userConnections);
     });
   });
 };

@@ -13,9 +13,7 @@ for (const extension of fileExtensions) {
       console.log(`${extension} Grundlage gespeichert.`);
     })
     .catch((error) => {
-      if (error.code === 11000 || error.code === 11001) {
-        console.log(`${extension} Grundlage schon in der DB gespeichert.`);
-      } else {
+      if (!(error.code === 11000 || error.code === 11001)) {
         console.error(
           `Fehler beim Speichern der ${extension} Grundlage:\n`,
           error
