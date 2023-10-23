@@ -19,7 +19,6 @@ const socket = (server) => {
     for (const [_from, _to] of Object.entries(confirmedRequests)) {
       if ((from === _from && to === _to) || (from === _to && to === _from)) {
         result = true;
-        delete confirmedRequests[_from];
         break;
       }
     }
@@ -79,6 +78,7 @@ const socket = (server) => {
         io.to(fromSocketId).emit("share_problem", to);
         io.to(toSocketId).emit("share_problem", from);
       }
+      console.log(confirmedRequests);
     });
 
     socket.on("deny_transfer", (from, to) => {
@@ -106,6 +106,15 @@ const socket = (server) => {
       if (checkConfirmedRequests(from, to)) {
         const toSocketId = userConnections[to];
         io.to(toSocketId).emit("transfer_stop", from);
+        for (const [_from, _to] of Object.entries(confirmedRequests)) {
+          if (from === _from) {
+            delete confirmedRequests[_from];
+            break;
+          } else if (to === _from) {
+            delete confirmedRequests[_from];
+            break;
+          }
+        }
       }
       console.log(confirmedRequests);
     });
